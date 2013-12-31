@@ -42,7 +42,7 @@
 When the cat goes: the paper is ready.
 
 \begin{center}
-  \includegraphics[width=8cm]{cat.jpg}
+  \includegraphics[width=.5\textwidth]{Images/cat.jpg}
 \end{center}
 
 \maketitle
@@ -287,28 +287,28 @@ This paper initially proposes a bespoke simulation model [\ref{fig:Simflow}] wri
 
 Our simulation model will initialise with the system empty, however this would not represent the system it is attempting to represent. This is due to the fact that most systems do not begin with an empty queue (e.g. a GP surgery would already have appointments scheduled, which would represent players in a queue in the context of our model.) and the potential impact of this is discussed in \cite{cite022}. The behaviour we are investigating occurs when the system has reached steady state.  To ensure that we are getting results from the steady state of a model, we must first determine the length of time it takes before the results from the model become invariant with respect to time. In \cite{cite013}, a method is discussed for finding the correct length for a model to run before collecting results. The algorithm involves the simulation being run for an increasing amount of time, and the mean utilisation recorded along with the standard deviation. By plotting the mean utilisation, along with a 95\% confidence interval, we can see when the model reaches steady state conditions by seeing when the graph stabilises. In Fig.\ref{fig:Warm}, the mean and 95\% confidence interval of the results was plotted to find the parameters necessary to ensure the accuracy of our results. The three parameters which needed to be determined were the length of the simulation, the warm-up period and the number of times each instance would be repeated. . Using the method suggested previously, we concluded the we needed to run the model for 250 time units and a warm up period of 50 time units was required. The number of trials did not cause a large variation even for small number of repeats and we decided to go with 16.
 
-\begin{figure}[ht]
-
-        \begin{subfigure}[b]{0.3\textwidth}
-                \centering
-                \includegraphics[width = 4cm]{Run_time.pdf}
-                \caption{Run Time}
-                \label{fig:Run}
-        \end{subfigure}
-        \begin{subfigure}[b]{0.3\textwidth}
-                \centering
-                \includegraphics[width = 4cm]{Warm_up.pdf}
-                \caption{Warm-up time}
-                \label{fig:Warm}
-        \end{subfigure}
-        \begin{subfigure}[b]{0.3\textwidth}
-                \centering
-                \includegraphics[width= 4cm]{Trials.pdf}
-                \caption{Trials}
-                \label{fig:Trials}
-        \end{subfigure}
-        \caption{Various graphs showing stabilisation of utilisation and cost as the simulation time increases }\label{fig:stable}
-\end{figure}
+%\begin{figure}[ht]
+%
+%        \begin{subfigure}[b]{0.3\textwidth}
+%                \centering
+%                \includegraphics[width = 4cm]{./Images/Run_time.pdf}
+%                \caption{Run Time}
+%                \label{fig:Run}
+%        \end{subfigure}
+%        \begin{subfigure}[b]{0.3\textwidth}
+%                \centering
+%                \includegraphics[width = 4cm]{./Images/Warm_up.pdf}
+%                \caption{Warm-up time}
+%                \label{fig:Warm}
+%        \end{subfigure}
+%        \begin{subfigure}[b]{0.3\textwidth}
+%                \centering
+%                \includegraphics[width= 4cm]{./Images/Trials.pdf}
+%                \caption{Trials}
+%                \label{fig:Trials}
+%        \end{subfigure}
+%        \caption{Various graphs showing stabilisation of utilisation and cost as the simulation time increases }\label{fig:stable}
+%\end{figure}
 
  To be able to effectively investigate larger scenarios, we started to use the Cardiff University supercomputer, Merlin \cite{web002}.The model is an example of embarrassingly parallel problem\cite{cite005}, due to the number of trials which enabled us to take advantage of the large number of cpu's available on Merlin\cite{cite007}.
 
@@ -350,7 +350,7 @@ We considered a variation on a local search heuristic, where after choosing our 
 \begin{figure}[ht]
     \begin{center}
 
-		\includegraphics[width=12cm]{Solver_comp.pdf}
+		\includegraphics[width=12cm]{Images/Solver_comp.pdf}
 		\caption{Comparison of the Local Search and Random Descent}
 		\label{fig:Solver_comp}
     \end{center}
@@ -402,7 +402,7 @@ This is an analytical approximation and was verified by comparing it to the simu
 \begin{figure}[ht]
     \begin{center}
 
-		\includegraphics[width=12cm]{PoA_v_Demand_comparison_2S.pdf}
+		\includegraphics[width=12cm]{Images/PoA_v_Demand_comparison_2S.pdf}
 		\caption{Comparison of the analytical model data to the simulation model for the case study}
 		\label{fig:Ana_comp}
     \end{center}
@@ -415,7 +415,7 @@ An assumption made to compute this analytical approximation was that the arrival
 \begin{figure}[ht]
     \begin{center}
 
-		\includegraphics[width=12cm]{Bad_Analyt.pdf}
+		\includegraphics[width=12cm]{Images/Bad_Analyt.pdf}
 		\caption{Comparison of the analytical model data to the simulation model with a dropout probability}
 		\label{fig:Bad_Analyt}
     \end{center}
@@ -433,7 +433,7 @@ It is possible to obtain the optimal social policy for a single $M/M/1$ queue, c
 \begin{figure}[ht]
     \begin{center}
 
-		\includegraphics[width=12cm]{pdf_graphs.pdf}
+		\includegraphics[width=12cm]{Images/pdf_graphs.pdf}
 		\caption{Showing that the probability of a player entering each station approximates a Markov distribution }
 		\label{fig:Markovian}
     \end{center}
@@ -450,7 +450,7 @@ It is possible to obtain the optimal social policy for a single $M/M/1$ queue, c
     \begin{figure}[ht]
     	\begin{center}
 
-        	\includegraphics[width=10cm]{plot_gate.pdf}
+        	\includegraphics[width=10cm]{Images/plot_gate.pdf}
             \caption{Increase in PoA when searching outside the selfish policy}
             \label{fig:Exit_ext}
       \end{center}
@@ -461,7 +461,7 @@ It is possible to obtain the optimal social policy for a single $M/M/1$ queue, c
         \begin{figure}[ht]
     	\begin{center}
 
-        	\includegraphics[width=10cm]{double_peak.pdf}
+        	\includegraphics[width=10cm]{Images/double_peak.pdf}
             \caption{Second Peak appearing when 50\% of players dropout of the 1\textsuperscript{st} station}
             \label{fig:Sec_peak}
       \end{center}
@@ -477,7 +477,7 @@ It is possible to obtain the optimal social policy for a single $M/M/1$ queue, c
     \begin{figure}[ht]
     	\begin{center}
 
-        	\includegraphics[width=10cm]{Varying_demand.pdf}
+        	\includegraphics[width=10cm]{Images/Varying_demand.pdf}
             \caption{Varying the value of service at each station as demand increases}
             \label{fig:Demandparam}
       \end{center}
@@ -486,7 +486,7 @@ It is possible to obtain the optimal social policy for a single $M/M/1$ queue, c
     \begin{figure}[ht]
     	\begin{center}
 
-        	\includegraphics[width=10cm]{Varying_Parameters_EXT.pdf}
+        	\includegraphics[width=10cm]{Images/Varying_Parameters_EXT.pdf}
             \caption{Varying the exit parameters for different balking costs}
             \label{fig:EXTparam}
       \end{center}
