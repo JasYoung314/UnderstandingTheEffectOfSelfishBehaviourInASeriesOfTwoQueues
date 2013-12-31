@@ -33,7 +33,7 @@
 \tikzstyle{left} = [draw, -latex',thick]
 
 
-\title{Understanding the effect of selfish behaviour in hierarchical queues: an approach based on simulation.}
+\title{Understanding the effect of selfish behaviour in a series of two queues.}
 \author{Jason Young, Vincent Knight}
 
 
@@ -53,7 +53,14 @@ In this paper, we consider a system consisting of $M/M/C$ queues arranged in ser
 
 \end{abstract}
 
-\section{Introduction}
+\section{Introduction}\label{Introduction}
+
+\begin{itemize}
+    \item Hierarchy in real life queues;
+    \item Review of papers in BQT;
+    \item PoA;
+    \item Discussion of situation being modelled in this paper.
+\end{itemize}
 
 Consider a system where players within this system will act for their own good, attempting to reduce their cost or equivalently increase their utility. This work will quantify the impact that this choice has in hierarchical queueing systems.
 In this paper and without loss of generality, cost is considered to be a unit-less combination of time spent in the system and any utility lost by balking from a given queue. It is well understood that individual behaviour has a negative effect on the efficiency of queueing systems.
@@ -84,7 +91,7 @@ In \cite{cite002} Bell and Stidham look into a particular system where the queue
 Boudali \cite{cite011} studied the effect of choice in a system where there was a possibility of a catastrophe occurring and players would have to abandon the system, wasting the time spent waiting.
 
 
-
+\section{Model}\label{model}
 
 In this paper we will focus on a hierarchical queueing system in which players must progress through a series of queues as seen in Fig.\ref{fig:game_pic}.
 
@@ -215,8 +222,6 @@ This paper is structured as follows: Section 2 gives an outline of how a simulat
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Development of Simulation model}
 
 This paper initially proposes a bespoke simulation model [\ref{fig:Simflow}] written in Python \cite{web001} to investigate the system. The model itself is a combination of Discrete Event Simulation\cite{cite003} and an Agent Based Model \cite{cite004}. The flow of the simulation model can be seen in Fig.\ref{fig:Simflow}.
 
