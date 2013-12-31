@@ -1,0 +1,516 @@
+\documentclass[12pt]{article}
+\usepackage{verbatim}
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{ulem}
+
+\usepackage{amsmath,tikz}
+\usetikzlibrary{shapes.geometric,arrows,positioning,calc}
+
+%%% ------- Game Pic ------- %%%%
+
+\tikzstyle{player} = [draw, fill=red!80, shape=circle, minimum width=.25cm]
+\tikzstyle{terminal} = [draw, shape = rectangle, fill=red!60, minimum width=.75cm, minimum height=.75cm]
+
+
+
+%%% ------- Simulation ------- %%%%
+
+\tikzstyle{Process} = [draw, shape = rectangle, fill=blue!20, minimum width=2.5cm, minimum height=1cm, text width=1.5cm,align=center]
+
+\tikzstyle{Terminal} = [draw, fill=red!60,thick ,rectangle ,rounded corners, minimum width=3cm, minimum height=1cm]
+
+\tikzstyle{Decision} = [draw, fill=blue!60,thick ,diamond ,minimum width=3.5cm, minimum height=1.5cm]
+
+\tikzstyle{Result} = [draw ,fill=blue!60 , shape = rectangle, minimum width=1.5cm, minimum height=.8cm]
+
+\tikzstyle{Arrow} = [->, >=latex', shorten >=1pt, thick]
+
+\tikzstyle{left} = [draw, -latex',thick]
+
+
+\title{Understanding the effect of selfish behaviour in hierarchical queues: an approach based on simulation.}
+\author{Jason Young, Vincent Knight}
+
+
+\begin{document}
+
+When the cat goes: the paper is ready.
+
+\begin{center}
+  \includegraphics[width=8cm]{cat.jpg}
+\end{center}
+
+\maketitle
+
+\begin{abstract}
+
+In this paper, we consider a system consisting of $M/M/C$ queues arranged in series. When customers (referred to as players) arrive at a given queue as they move through the system, they make a decision, to either join the queue or skip it at a cost. The system is considered under two types of player behaviour, one where players act selfishly and one where there is a policy dictating the decisions of the players. Players acting selfishly will attempt to reduce their own cost with no thought to the cost of other players in the system. Alternatively a optimal social policy is considered that attempts to reduce the average cost per player. We use the Price of Anarchy as a measure of the inefficiency due to choice to observe the impact that individual behavior has on the system. An Agent Based Simulation is developed that is used in conjunction with various heuristic approaches to obtain the socially optimal and selfish behavior of players. Due to the high computational cost of this model an analytical approximation is obtained and used to identify the effect of the total arrival rate on the system as well as other system parameters. In particular an optimal dropout probability rate is obtained for various scenarios which could have applications such as the optimal referral rate of general practitioners to hierarchical medical services.
+
+\end{abstract}
+
+\section{Introduction}
+
+Consider a system where players within this system will act for their own good, attempting to reduce their cost or equivalently increase their utility. This work will quantify the impact that this choice has in hierarchical queueing systems.
+In this paper and without loss of generality, cost is considered to be a unit-less combination of time spent in the system and any utility lost by balking from a given queue. It is well understood that individual behaviour has a negative effect on the efficiency of queueing systems.
+
+To illustrate this effect, consider the classic game theory problem, the Prisoners Dilemma. The game is that two prisoners are being separately questioned and must decide whether to co-operate, or defect, and the cost to each player can be seen in Fig.\ref{fig:prisoner} . Under selfish conditions, both players defect, giving a cost per player of 5. However, if both players co-operate, the average cost per player is reduced to 1.
+
+
+
+\begin{figure}[ht]
+  \begin{center}
+
+    \begin{tabular}{  c | c |c |}
+
+      \cline{2-3}           & Co-operate & Defect 			 \\ \hline
+      \multicolumn{1}{ |c| }{Co-operate} & (1,1)      & (7,0)   		 \\ \hline
+      \multicolumn{1}{ |c| }{Defect}     & (0,7)      & (5,5)			 \\ \hline
+    \end{tabular}
+
+    \caption{Payoff matrix for a prisoners dilemma game}
+    \label{fig:prisoner}
+  \end{center}
+\end{figure}
+
+
+
+
+In \cite{cite002} Bell and Stidham look into a particular system where the queues were arranged in parrallel. Players knew the service time at each of these queues and could join any of them and recieve the same service. However players were not able to see the length of the queue before joining. This is an example of an unobservable queueing system, where players are not able to see the number of other players ahead of them prior to joining. Some work has been done in showing the differences in player behaviour in unobservable and observable versions of the same queue in \cite{cite010}. In that paper, the effect of the amount of information available to players, including some ``intentional vagueness" was studied while the system was under both selfish and social conditions.
+Boudali \cite{cite011} studied the effect of choice in a system where there was a possibility of a catastrophe occurring and players would have to abandon the system, wasting the time spent waiting.
+
+
+
+
+In this paper we will focus on a hierarchical queueing system in which players must progress through a series of queues as seen in Fig.\ref{fig:game_pic}.
+
+\begin{figure}[ht]
+\begin{tikzpicture}[scale=.7]
+            \draw (0,0) node[terminal] (A) {};
+            \node (B) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at (2, 0) {$d_1$};
+            %%%%% First station %%%%%
+            \draw (4,0) node[player] (C) {};
+            \draw (4.5,0) node[player] (Q) {};
+            \draw (5,0) node[player] (D) {};
+            \draw [Arrow] (A) -- (B);
+            \draw [Arrow] (B) -- (C);
+            \node (E) [rectangle, fill=blue!100, draw, minimum width=.75cm, minimum height=2cm, right=1.0cm of Q] {};
+            \draw [Arrow] (D) -- (E);
+            \node (F) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at (E) {};
+            \node (G) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at ($(E) + (0,.8)$) {};
+            \node (H) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at ($(E) + (0,-.8)$) {};
+            \draw node[player] at (F) {};
+            \draw node[player] at (G) {};
+            \draw node[player] at (H) {};
+            \node at ($(E) + (0,1.75)$) {$c_1=3$};
+            \node at ($(E) + (-.95,-1)$) {$\mu_1$};
+            %%%%% Second station %%%%%
+
+            \node (Z) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at ($(E) + (3,0)$) {$d_2$};
+
+            \node (R) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at ($(Z) + (3,0)$) {$d_n$};
+            \draw [Arrow] (E) -- (Z);
+            \draw node[player] (I) at ($(R) + (2,0)$) {};
+            \draw node[player] (J) at ($(I) + (.5,0)$) {};
+            \node (K) [rectangle, fill=blue!100, draw, minimum width=.75cm, minimum height=2cm, right=.5cm of J] {};
+            \draw [Arrow] (R) -- (I);
+            \draw [Arrow] (J) -- (K);
+            \node (L) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at (K) {};
+            \draw node[player] at (L) {};
+            %%%%% End station %%%%
+            \node (M) [terminal] at ($(K) + (3,0)$) {};
+            \draw [Arrow] (K) -- (M);
+            %%%%% Edges %%%%%
+            \draw (R) edge[out=85,in=90,Arrow] node [above] {$\beta_n$} (M);
+            \draw (B) edge[out=85,in=90,Arrow] node [above] {$\beta_1$} (Z);
+            \node at ($(K) + (0,1.75)$) {$c_n=1$};
+            \node at ($(K) + (-.95,-1)$) {$\mu_n$};
+            \node at (A) {$\Lambda$};
+
+            %%%%% My bit %%%%%
+
+            \node[draw=none,fill=none] at ($(Z)+ (1.5,0)$) {...};
+
+        \end{tikzpicture}
+
+    \caption{Diagram of n stations in series}
+	\label{fig:game_pic}
+
+\end{figure}
+
+The players arrive into the system at a rate $\Lambda$ and make a decision on whether or not to join the first queue. The players know the rate of service $\mu_k$ at each queue , the number of servers at each queue $c_k$ and also the number of players currently in each queue. Once they observe a queue, they must either join the queue or skip the queue. There is a cost associated with skipping a particular queue give by $\beta_k$ .  There is also a chance that after completing service at a queue, the player would leave the system completely, known as the dropout probability $p_k$. Players make their decision $d_k$ by comparing the skipping cost to the expected cost of joining the queue .
+
+\begin{equation}\label{eq:decision}
+    d_k=
+\begin{cases}
+    1,& \text{if player joins queue } k \\
+    0,& \text{if player skips queue } k
+\end{cases}
+\end{equation}
+
+A player arriving at queue $k$ and observing $m$ agents ahead of them will expect to receive a cost given by equation (\ref{eq:expect}).
+
+\begin{equation} \label{eq:expect}
+	E[\sigma_{k}] = \frac{m+1}{\mu_k c_k}
+\end{equation}
+
+where $\sigma_{k}$ denotes the actual cost to a player at station k.
+
+In addition, we let $\xi$ denote the cumulative cost incurred by a player moving through the system. $T_{k}$ in eq \ref{eq:actualcost} denotes the actual time spent in station $k$ by a player. It is the sum of the time spent waiting to be served ($T^{w}_{k}$) and the time spent being served ($T^{s}_{k}$). Thus we have the cumulative cost to a player in station
+
+\begin{equation}\label{eq:actualcost}
+\xi_{k} = \begin{cases}
+		0, \text{ if } i = 0 \\
+        \xi_{k-1} + \begin{cases}
+        	  	T_{k},& \text{if player joins queue k} \\
+    			\beta_{k},& \text{if player skips queue k}
+        	  \end{cases}
+
+	  \end{cases}
+\end{equation}
+
+Upon arriving at queue $k$ a player will make a decision that will benefit them by comparing (\ref{eq:expect}) to $\beta_k$. For example, a player arriving at a queue with the parameters listed in Fig.\ref{fig:param} will expect to add .5 to their cost if they receive service at that station. As the balking cost for this queue is lower than the expected cost ($\beta=0.4$), this player would skip under selfish conditions.
+
+\begin{figure}[ht]
+  \begin{center}
+
+    \begin{tabular}{ |l |r |}
+                   			\hline
+      Parameter  & Value \\ \hline
+      $\mu$  & 2   		 \\ \hline
+      $c$  & 4 			 \\ \hline
+      $m$  & 3 			 \\ \hline
+      $\beta$  & 0.4 	 \\ \hline
+    \end{tabular}
+
+    \caption{Example parameters for a station}
+    \label{fig:param}
+  \end{center}
+\end{figure}
+
+A player moving through the system with $n$ stations can expect to receive a cost of (\ref{eq:total}) when making a choice $d_k$(\ref{eq:decision}) at queue $k$ .
+
+
+
+
+\begin{equation}\label{eq:total}
+E[\xi_n] = \sum_{i=1}^{n}{(1-d_i)\left(\frac{m_i+1}{\mu_ic_i}\right)} + \sum_{i=1}^{n}{d_i\beta_i}
+\end{equation}
+
+% We want to write down a policy. That all players should follow. This will then give a mean cost for all players. This is what is implied by a social policy...
+We want to instigate a policy which minimises the average cost per player, which is known as the optimal social policy. In the system, the policy is the length of the queue at which a player arriving at the queue will balk from it. Now consider Fig.\ref{fig:param}, and we can see that a player skips from this queue if there are 3 people in the queue.
+
+By considering policies which benefit the system by reducing the average cost per player, we can see the effect of choice in this system, which is what is implied by a social policy (we also say that the system is under social conditions). Within this paper, we consider the Price of Anarchy (\ref{eq:POA}) or PoA, the ratio of average cost per player under selfish conditions (given by $\tilde\tau$), to the average cost per player under social conditions (given by $\tau^*$). In the earlier example concerning the prisoners dilemma, the Price of Anarchy is $ 5/1 = 5$
+
+\begin{equation}\label{eq:POA}
+	PoA = \frac{\text{$\tilde\tau$}}{\text{$\tau^*$}}
+\end{equation}
+
+
+This paper is structured as follows: Section 2 gives an outline of how a simulation model was used to study the queueing system, Section 3 explains the heuristic methods involved in finding the optimal social policy, Section 4 describes an analytical approximation of the model used to study the system at a much lower computational cost. This approximation was validated with the simulation model. Section 5 will discuss the results we gained from the analytical approximation version of the model and then it will conclude with some further work.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Development of Simulation model}
+
+This paper initially proposes a bespoke simulation model [\ref{fig:Simflow}] written in Python \cite{web001} to investigate the system. The model itself is a combination of Discrete Event Simulation\cite{cite003} and an Agent Based Model \cite{cite004}. The flow of the simulation model can be seen in Fig.\ref{fig:Simflow}.
+
+\begin{figure}[ht]
+
+        \begin{tikzpicture}[scale=.6]
+        \tikzstyle{every node} = [font=\scriptsize ]
+
+        %%%%% Top Line %%%%%%
+
+        \draw (0,0) node[Terminal] (A) {Simulation Start};
+        \draw node[Process] at ($(A)+ (20,0)$) (B) {Initialise Variables};
+
+
+        %%%%% Second Line %%%%%
+
+        \draw node[Process] at ($(B)+ (0,-4)$) (C){Player Arrives};
+        \draw node[Process] at ($(C)+ (-10,0)$) (D){Clock Increments};
+        \draw node[Process] at ($(D)+ (-10,0)$) (E){Find Decision Maker};
+
+        %%%%% Third Line %%%%%
+
+        \draw node[Decision] at ($(E) + (0,-4)$) (F){};
+        \node[text width=1.5cm,align=center] at (F) {Player Makes  Decision};
+        \draw node[Result] at ($(F) + (5,0)$) (G){Skip};
+        \draw node[Result] at ($(G) + (6,0)$) (H){Yes};
+        \draw node[Terminal] at ($(H) + (5,0)$) (I){Simulation End};
+
+        %%%%% Bottom Line %%%%%
+
+        \draw node[Result] at ($(F)+ (0,-4)$) (J){Join};
+        \draw node[Process] at ($(J) + (5,0)$) (K){Update Queue};
+        \draw node[Decision] at ($(H) + (0,-4)$) (L){};
+        \node[text width=1.5cm,align=center] at (L) {Max Time elapsed?};
+        \draw node[Result] at ($(C) + (0,-8)$) (M){No};
+
+        %%%%% Connecting Arrows %%%%%
+
+        \draw [Arrow] (A) -- (B);
+        \draw [Arrow] (B) -- (C);
+        \draw [Arrow] (C) -- (D);
+        \draw [Arrow] (D) -- (E);
+        \draw [Arrow] (E) -- (F);
+        \draw [Arrow] (F) -- (J);
+        \draw [Arrow] (J) -- (K);
+        \draw [Arrow] (K) -- (L);
+        \draw [Arrow] (L) -- (M);
+        \draw [Arrow] (M) -- (C);
+        \draw [Arrow] (F) -- (G);
+        \draw [Arrow] (L) -- (H);
+        \draw [Arrow] (H) -- (I);
+
+        \node[draw=none,fill=none] at ($(E)+ (0,-1.75)$) (dummy){};
+
+        \path [left] (G.north) |- (dummy.east);
+
+	\end{tikzpicture}
+
+	\caption{Flow chart describing the simulation model}
+	\label{fig:Simflow}
+\end{figure}
+
+
+Our simulation model will initialise with the system empty, however this would not represent the system it is attempting to represent. This is due to the fact that most systems do not begin with an empty queue (e.g. a GP surgery would already have appointments scheduled, which would represent players in a queue in the context of our model.) and the potential impact of this is discussed in \cite{cite022}. The behaviour we are investigating occurs when the system has reached steady state.  To ensure that we are getting results from the steady state of a model, we must first determine the length of time it takes before the results from the model become invariant with respect to time. In \cite{cite013}, a method is discussed for finding the correct length for a model to run before collecting results. The algorithm involves the simulation being run for an increasing amount of time, and the mean utilisation recorded along with the standard deviation. By plotting the mean utilisation, along with a 95\% confidence interval, we can see when the model reaches steady state conditions by seeing when the graph stabilises. In Fig.\ref{fig:Warm}, the mean and 95\% confidence interval of the results was plotted to find the parameters necessary to ensure the accuracy of our results. The three parameters which needed to be determined were the length of the simulation, the warm-up period and the number of times each instance would be repeated. . Using the method suggested previously, we concluded the we needed to run the model for 250 time units and a warm up period of 50 time units was required. The number of trials did not cause a large variation even for small number of repeats and we decided to go with 16.
+
+\begin{figure}[ht]
+
+        \begin{subfigure}[b]{0.3\textwidth}
+                \centering
+                \includegraphics[width = 4cm]{Run_time.pdf}
+                \caption{Run Time}
+                \label{fig:Run}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\textwidth}
+                \centering
+                \includegraphics[width = 4cm]{Warm_up.pdf}
+                \caption{Warm-up time}
+                \label{fig:Warm}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\textwidth}
+                \centering
+                \includegraphics[width= 4cm]{Trials.pdf}
+                \caption{Trials}
+                \label{fig:Trials}
+        \end{subfigure}
+        \caption{Various graphs showing stabilisation of utilisation and cost as the simulation time increases }\label{fig:stable}
+\end{figure}
+
+ To be able to effectively investigate larger scenarios, we started to use the Cardiff University supercomputer, Merlin \cite{web002}.The model is an example of embarrassingly parallel problem\cite{cite005}, due to the number of trials which enabled us to take advantage of the large number of cpu's available on Merlin\cite{cite007}.
+
+
+
+%  \begin{figure}[ht]
+%      \begin{center}
+%          \begin{tabular}{ |c |c |c|}
+%                                \hline
+%            \multicolumn{3}{|c|}{Time taken in seconds}      \\ \hline
+%            Original Model  & Improved algorithm & \% time taken  \\ \hline
+%            35.7835  & 17.5425 &	49.02\\ \hline
+%            25.0892  & 12.6983 & 	50.61\\ \hline
+%            42.8013  & 19.9443 &	46.59\\ \hline
+%            12.5448  & 5.8681  &	46.77\\ \hline
+%          \end{tabular}
+%
+%          \caption{Comparison of the simulation model before and after implementing a new algorithm for finding the next decision}
+%          \label{fig:Time}
+%      \end{center}
+%  \end{figure}
+
+
+
+\section{Optimisation}
+
+	The motivation for this paper is to study the effect that choice has on these particular systems, by using the Price of Anarchy as a measure of the inefficiency. To understand the impact of choice, we do not need the optimal social policy, but merely a good approximation to the optimal social policy. In \cite{cite023} a variety of heuristic methods are discussed, along with criteria for when a heuristic is applicable and what makes a good heuristic. We decided to use heuristic methods based on the conditions
+    \begin{itemize}
+    	\item{No exact method was known to find the optimal solution}
+        \item{Although searching the solution space exhaustively would eventually yield the optimal solution, this proved to be far to computationally expensive }
+    \end{itemize}
+
+Based on these criteria, the following heuristic algorithms were tested.
+
+We considered a variation on a local search heuristic, where after choosing our starting point as the selfish policy, we search a small area around this point exhaustively. If we find a better solution, we re-center our search space on the improved policy. One version of this algorithm did not change the search range (labeled search range \ref{fig:Solver_comp}), but there was an alternate version that if it did not find a better policy with the search space, it increased the range in which it searched (labeled variable search range \ref{fig:Solver_comp}). While this heuristic will eventually find the optimal policy (as the entire space of possible policies will eventually be searched) the method required a long time to run even small instances (even with the resources available described in chapter 3). As such the algorithm suffered a problem common to hill climbing heuristics, become locked into a local optima. By examining Fig. \ref{fig:Solver_comp} we can see that the performance of the algorithm was significantly worse due to the limited number of iterations we could run. The use of a similar hill-climbing heuristic within the context of a probabilistic model can be found in \cite{cite024}, including an examination of its use to find local optima.
+
+ Another, simpler heuristic was investigated. A Random descent heuristic simply searches the solution space randomly, sometimes bound by conditions, but also completely unbound. While we experimented using a random walk which optimised each stations policy individually (labeled iterative \ref{fig:Solver_comp} ), it was found that this method was either similar, or at times worse than a completely random method. By again referring to Fig. \ref{fig:Solver_comp} we can see that this algorithm vastly out performed the local search algorithm.
+
+\begin{figure}[ht]
+    \begin{center}
+
+		\includegraphics[width=12cm]{Solver_comp.pdf}
+		\caption{Comparison of the Local Search and Random Descent}
+		\label{fig:Solver_comp}
+    \end{center}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Analytical Approximation}
+
+	To reduce the computational cost of the investigations, we now propose an analytical approximation of the above model. For reasons that will become clear, we assume that despite the non-markovian nature of the decisions made by the players the actual inter arrival rate at each of the stations follows a Markovian Distribution \cite{cite014}. The arrival rate into each station is given by (\ref{eq:Arrival}). This formula is based on the dropout probability and arrival rate at the previous station.
+
+\begin{equation}\label{eq:Arrival}
+  \lambda_{i} = \lambda_{i-1}\times(1-p_{i-1}\times(1-\pi_{N}^{(i-1)}))
+\end{equation}
+
+ We also need to consider that fact that players will not dropout of the system if they balk from a particular queue. This is represented in (\ref{eq:Arrival}) by $(1 - \pi_{N}^{(i-1)})$ which only applies the probability of a player exiting the system to the players that do not balk. $\pi_{N}^{(i)}$ is the probability of there being $N$ players in the queue, where $N$ is the point at which players skip, either selfishly or due to a policy.
+ We can then obtain a formula for the expected cost to a player moving through the system, which is expressed in \ref{eq:Expeccost}. The formula is a sum of the cost at each station, multiplied by the percentage of $\Lambda$ that arrives into station $j$
+
+\begin{equation}\label{eq:Expeccost}
+   C = \sum_{j=1}^{n}\frac{\lambda_{j} C_{j}}{\Lambda }
+\end{equation}
+
+We can approximate the cost to a player going through station $i$ by calculating the probability that station $i$ will have $m$ players in it\cite{cite018}. This probability is given by
+
+\begin{equation}\label{eq:probcl}
+  \pi_n = \frac{1}{n!}\left(\frac{\lambda}{\mu}\right)^{n}\pi_{0} \hspace{1cm} 0\leq n \leq c
+\end{equation}
+
+\begin{equation}\label{eq:probcm}
+  \pi_n = \frac{1}{c^{n-c}c!}\left(\frac{\lambda}{\mu}\right)^{n}\pi_{0} \hspace{1cm} c< n \leq K
+\end{equation}
+
+where
+
+\begin{equation}
+\pi_{0} = \left[ \sum_{n=0}^{c-1} \frac{1}{n!} \left( \frac{\lambda}{\mu} \right)^{n}  + \sum_{n=c}^{K} \frac{1}{c^{n-c}c!} \left( \frac{\lambda}{\mu} \right)^{n} \right] ^{-1}
+\end{equation}
+
+Station $i$ is then in K+1 states given that there are $N$ players in the queue. Either the queue has less than c players(\ref{eq:probcl}), between c players and the maximum queue capacity K players(\ref{eq:probcm}) or the queue is full with K players in the system. By using these probabilities and the formula for expected cost(\ref{eq:expect}) we can calculate the $C$ given in (\ref{eq:Expeccost})
+
+\begin{equation}\label{stationcost}
+C_{i} = \pi_{N}^{(i)} \beta_{i} + \sum_{j=0}^{c_{i}} \frac{\pi_{j}^{(i)}}{\mu_{i}} + \sum_{j=c_{i}}^{N-1}\frac{ \pi_{j}^{(i)}(j+1)}{ \mu_{i} c_{i}}
+\end{equation}
+
+This is an analytical approximation and was verified by comparing it to the simulation model as can be seen in Fig.\ref{fig:Ana_comp}. The analytical model was a vast improvement in speed and efficiency over the simulation model. It allowed each possible policy to be evaluated and the expected cost per player to be approximated.a Searching the policy space exhaustively took less time than running a heuristic method.
+
+
+\begin{figure}[ht]
+    \begin{center}
+
+		\includegraphics[width=12cm]{PoA_v_Demand_comparison_2S.pdf}
+		\caption{Comparison of the analytical model data to the simulation model for the case study}
+		\label{fig:Ana_comp}
+    \end{center}
+\end{figure}
+
+
+An assumption made to compute this analytical approximation was that the arrival rate into any given station was Markovian. However, due to this assumption the analytical model may not always give such a close approximation to the simulation result [\ref{fig:Bad_Analyt}]. This is due the fact that the equations used in \cite{cite018} assume an $M/M/C/K$ queue, but the dropout probability causes our system to become a series of $G/M/C/K$ queues.
+
+
+\begin{figure}[ht]
+    \begin{center}
+
+		\includegraphics[width=12cm]{Bad_Analyt.pdf}
+		\caption{Comparison of the analytical model data to the simulation model with a dropout probability}
+		\label{fig:Bad_Analyt}
+    \end{center}
+\end{figure}
+
+Considering the case such that we have no probability of a customer leaving the system, the system as a whole exhibits Quasi-reversibility\cite{cite018} which means that the arrival and departure rate is time independent. Burke's theorem \cite{cite025} states that an $M/M/C$ queue with arrival rate $\lambda$ which is sampled from a poison distribution has the following properties.
+
+\begin{itemize}
+    	\item{The departure process is a Poisson process with rate parameter $\lambda$. }
+        \item{At time t the number of customers in the queue is independent of the departure process prior to time $t$.}
+    \end{itemize}
+
+It is possible to obtain the optimal social policy for a single $M/M/1$ queue, called the Naor threshold \cite{cite026}. The result given describes the threshold at which players should balk from a single queue, and some preliminary results show that for no dropout probability and 1 server and each station, this does hold for our system.
+
+\begin{figure}[ht]
+    \begin{center}
+
+		\includegraphics[width=12cm]{pdf_graphs.pdf}
+		\caption{Showing that the probability of a player entering each station approximates a Markov distribution }
+		\label{fig:Markovian}
+    \end{center}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Results}
+	The results shall be discussed in two different contexts, in a mostly general framework and with respect to a case study.
+
+
+	The results that returned from both the analytical and simulation model showed that the exit probability had interesting effects on the Price of Anarchy. Our initial assumption was that the optimal social policy would always be less than the Nash policy, but this only held true when there was no chance for a player to leave the system. It was discovered that when we add an exit probability to a particular queue, it may improve the average cost per player if more players go through this queue. Fig.[\ref{fig:Exit_ext}] compares two different systems, one with two stations in series and one with 3. The Price of Anarchy was computed for both these systems, and when the search space was expanded we can see the Price of Anarchy increase (which corresponds to a drop in the average cost per player under social conditions).
+
+    \begin{figure}[ht]
+    	\begin{center}
+
+        	\includegraphics[width=10cm]{plot_gate.pdf}
+            \caption{Increase in PoA when searching outside the selfish policy}
+            \label{fig:Exit_ext}
+      \end{center}
+	\end{figure}
+
+    Another way in which the exit probability can affect the Price of Anarchy is to mask the presence of a second peak appearing in the demand curve, that can been seen appearing in many situations involving Price of Anarchy \cite{cite011}. The peaked profile is caused by a difference in players skipping under selfish and social conditions. The Price of Anarchy increases when players are skipping selfishly but not socially. The peak then decreases when the demand increases further and players skip under both conditions. A second peak occours in systems where there are multiple stations, and the demand at which a peak appears for each station are spread out. While a single peak was common throughout the course of the investigation, there did not seem to be any effect from the hierachical structure in most cases. The reason behind this was that the exit probability was lowering demand at stations further into the system, so that the demand was too low to cause this profile. Once demand reached a threshold and all the players skipped earlier queues, the rest of the system was flooded with additional demand, and the players skipped the later queues which removed the second peak. However, we can see this second peak in Fig.[\ref{fig:Sec_peak}] when there is a lower probability of players dropping out in a 2 queue system.
+
+        \begin{figure}[ht]
+    	\begin{center}
+
+        	\includegraphics[width=10cm]{double_peak.pdf}
+            \caption{Second Peak appearing when 50\% of players dropout of the 1\textsuperscript{st} station}
+            \label{fig:Sec_peak}
+      \end{center}
+	\end{figure}
+
+
+    Our case study consisted of a General Practitioners, which leads onto an accident and emergency center. Based on nhs data, the GP surgery had 5 doctors on hand, able to see 12.5 patients a day. Patients are willing to wait up to 2 days to see the GP. We made an assumption that an A\&E would have 5 doctors on hand to see patients from this particular GP surgery. The A\&E doctors can each see 48 patients a day, patients will wait up to 8 hours to see the A\&E doctor. However, if patients see a GP, 80\% of them will not have to go to A\&E, and simply leave the system there.
+
+    We can see in Fig.\ref{fig:EXTparam} (where we are modeling the above system), there does exist a dropout probability the minimises the negative impact due to choice. However in the practical situation of sending 85\% (Fig.\ref{fig:EXTparam}) of patients to an A\&E, it may not be feasible to implement this dropout probability.
+   As previously mention, increasing the length that patients are willing to wait causes the PoA increases
+ which can be seen in Fig. \ref{fig:Demandparam}. Also interesting to note is the appearance of a second peak can be seen as the value of service at the A\&E increases.
+
+    \begin{figure}[ht]
+    	\begin{center}
+
+        	\includegraphics[width=10cm]{Varying_demand.pdf}
+            \caption{Varying the value of service at each station as demand increases}
+            \label{fig:Demandparam}
+      \end{center}
+	\end{figure}
+
+    \begin{figure}[ht]
+    	\begin{center}
+
+        	\includegraphics[width=10cm]{Varying_Parameters_EXT.pdf}
+            \caption{Varying the exit parameters for different balking costs}
+            \label{fig:EXTparam}
+      \end{center}
+	\end{figure}
+
+
+\break
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Conclusions and further work}
+
+	We have considered a hierarchical system in both selfish and social conditions. By looking at the price of Anarchy in a series of $M|M|C$ queues we can conclude
+
+    \begin{itemize}
+    	\item{There exists a dropout probability such that the negative impact due to choice is minimised. }
+        \item{The hierarchical structure contributes to the Price of Anarchy. However the dropout probability can alter and disguise this effect on the system.}
+        \item{Increasing the cost to a player balking increases the Price of Anarchy.}
+    \end{itemize}
+
+There is much debate whether or not choice is beneficial to a given system. An example of this is within the NHS, and there are points of view that suggest that patients are happier with some element of choice \cite{cite017} and some that state that it is better to have a controlling element \cite{cite016}. However, from a strictly academic point of view, this paper has shown that by designing a system in certain ways we can minimises the negative impact due to individual behaviour. By only having a certain proportion of players remain within the system after completing service, the Price of Anarchy is minimised. The cost to a player for skipping a queue can be equated to how much service at a particular station is worth to players. By changing the worth of service at a station it is possible to increase and decrease the Price of Anarchy.It has also been shown that having a hierarchical structure within the queueing system can affect the Price of Anarchy, but is dependent on the dropout probability at previous stations. Usually it is advantageous to have a social policy that dictates players balk from queues earlier than they would under selfish conditions. However, If there is a large enough dropout probability, it can be better for players join a queue with more players ahead of them than under selfish conditions.
+
+  Further work on this project would include some technical aspects, such as improving the performence of the simulation model. In this system, the arrival and service times are sampled from a markovian distribution, and it may yield some insights into the behaviour of the system if we consider other distributions. As in \cite{cite010}, altering the amount of information given to players such as the exit probability at each queue would give greater insights into how that probability affects the Price of Anarchy. Giving less information to the players and making the system unobservable could be compared to the existing system to show how this affected player choice.
+    This model can be changed very slightly to give a completely different system. Instead of making a skip or a join decision upon entering a particular queue the player makes one decision upon entering the system, which queue to join inititally. This one change completely alters the structure of the policy and  the approximation of the cost of joining at a particular point. The investigation of this model, particularly with the focus on the new structure of the policy would be the primary focus of any future work.
+
+\pagebreak
+\bibliographystyle{plain}
+\footnotesize{\bibliography{bibliography}}
+
+\end{document}
