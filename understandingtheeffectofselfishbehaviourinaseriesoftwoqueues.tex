@@ -1,12 +1,12 @@
 \documentclass[12pt]{article}
 \usepackage{verbatim}
-\usepackage[english]{babel}
-\usepackage[utf8x]{inputenc}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage[english]{babel}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{ulem}
+\usepackage{fullpage}
 
 \usepackage{amsmath,tikz}
 \usetikzlibrary{shapes.geometric,arrows,positioning,calc}
@@ -49,6 +49,166 @@ When the cat goes: the paper is ready.
 
 \begin{abstract}
 
+Hierarchical queues in HC;
+PoA;
+Simulation model;
+Heuristics developed to obtain optimal policies;
+
+\end{abstract}
+
+\section{Introduction}\label{Introduction}
+
+\begin{itemize}
+    \item Hierarchy in real life queues;
+    \item Review of papers in BQT;
+    \item PoA;
+    \item Discussion of situation being modelled in this paper.
+\end{itemize}
+
+\begin{figure}[!hpbt]
+\begin{tikzpicture}[scale=.7]
+            \draw (0,0) node[terminal] (A) {};
+            \node (B) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at (2, 0) {$d_1$};
+            %%%%% First station %%%%%
+            \draw (4,0) node[player] (C) {};
+            \draw (4.5,0) node[player] (Q) {};
+            \draw (5,0) node[player] (D) {};
+            \draw [Arrow] (A) -- (B);
+            \draw [Arrow] (B) -- (C);
+            \node (E) [rectangle, fill=blue!100, draw, minimum width=.75cm, minimum height=2cm, right=1.0cm of Q] {};
+            \draw [Arrow] (D) -- (E);
+            \node (F) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at (E) {};
+            \node (G) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at ($(E) + (0,.8)$) {};
+            \node (H) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at ($(E) + (0,-.8)$) {};
+            \draw node[player] at (F) {};
+            \draw node[player] at (G) {};
+            \draw node[player] at (H) {};
+            \node at ($(E) + (0,1.75)$) {$c_1=3$};
+            \node at ($(E) + (-.95,-1)$) {$\mu_1$};
+            %%%%% Second station %%%%%
+
+            \node (Z) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at ($(E) + (3,0)$) {$d_2$};
+
+            \node (R) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at ($(Z) + (3,0)$) {$d_n$};
+            \draw [Arrow] (E) -- (Z);
+            \draw node[player] (I) at ($(R) + (2,0)$) {};
+            \draw node[player] (J) at ($(I) + (.5,0)$) {};
+            \node (K) [rectangle, fill=blue!100, draw, minimum width=.75cm, minimum height=2cm, right=.5cm of J] {};
+            \draw [Arrow] (R) -- (I);
+            \draw [Arrow] (J) -- (K);
+            \node (L) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at (K) {};
+            \draw node[player] at (L) {};
+            %%%%% End station %%%%
+            \node (M) [terminal] at ($(K) + (3,0)$) {};
+            \draw [Arrow] (K) -- (M);
+            %%%%% Edges %%%%%
+            \draw (R) edge[out=85,in=90,Arrow] node [above] {$\beta_n$} (M);
+            \draw (B) edge[out=85,in=90,Arrow] node [above] {$\beta_1$} (Z);
+            \node at ($(K) + (0,1.75)$) {$c_n=1$};
+            \node at ($(K) + (-.95,-1)$) {$\mu_n$};
+            \node at (A) {$\Lambda$};
+
+            %%%%% My bit %%%%%
+
+            \node[draw=none,fill=none] at ($(Z)+ (1.5,0)$) {...};
+
+        \end{tikzpicture}
+
+    \caption{Diagram of n stations in series}
+	\label{game_pic}
+
+\end{figure}
+
+\section{Model}\label{model}
+
+\begin{itemize}
+    \item Parameters;
+    \item Optimal behaviour;
+    \item Selfish behaviour.
+    \item Cost (how to verify that cost is correct?).
+\end{itemize}
+
+\begin{figure}[ht]
+
+        \begin{tikzpicture}[scale=.6]
+        \tikzstyle{every node} = [font=\scriptsize ]
+
+        %%%%% Top Line %%%%%%
+
+        \draw (0,0) node[Terminal] (A) {Simulation Start};
+        \draw node[Process] at ($(A)+ (20,0)$) (B) {Initialise Variables};
+
+
+        %%%%% Second Line %%%%%
+
+        \draw node[Process] at ($(B)+ (0,-4)$) (C){Player Arrives};
+        \draw node[Process] at ($(C)+ (-10,0)$) (D){Clock Increments};
+        \draw node[Process] at ($(D)+ (-10,0)$) (E){Find Decision Maker};
+
+        %%%%% Third Line %%%%%
+
+        \draw node[Decision] at ($(E) + (0,-4)$) (F){};
+        \node[text width=1.5cm,align=center] at (F) {Player Makes  Decision};
+        \draw node[Result] at ($(F) + (5,0)$) (G){Skip};
+        \draw node[Result] at ($(G) + (6,0)$) (H){Yes};
+        \draw node[Terminal] at ($(H) + (5,0)$) (I){Simulation End};
+
+        %%%%% Bottom Line %%%%%
+
+        \draw node[Result] at ($(F)+ (0,-4)$) (J){Join};
+        \draw node[Process] at ($(J) + (5,0)$) (K){Update Queue};
+        \draw node[Decision] at ($(H) + (0,-4)$) (L){};
+        \node[text width=1.5cm,align=center] at (L) {Max Time elapsed?};
+        \draw node[Result] at ($(C) + (0,-8)$) (M){No};
+
+        %%%%% Connecting Arrows %%%%%
+
+        \draw [Arrow] (A) -- (B);
+        \draw [Arrow] (B) -- (C);
+        \draw [Arrow] (C) -- (D);
+        \draw [Arrow] (D) -- (E);
+        \draw [Arrow] (E) -- (F);
+        \draw [Arrow] (F) -- (J);
+        \draw [Arrow] (J) -- (K);
+        \draw [Arrow] (K) -- (L);
+        \draw [Arrow] (L) -- (M);
+        \draw [Arrow] (M) -- (C);
+        \draw [Arrow] (F) -- (G);
+        \draw [Arrow] (L) -- (H);
+        \draw [Arrow] (H) -- (I);
+
+        \node[draw=none,fill=none] at ($(E)+ (0,-1.75)$) (dummy){};
+
+        \path [left] (G.north) |- (dummy.east);
+
+	\end{tikzpicture}
+
+	\caption{Flow chart describing the simulation model}
+	\label{fig:Simflow}
+\end{figure}
+
+\section{Heuristic Optimal Policies}\label{heuristicoptimalpolicies}
+
+\begin{itemize}
+\item Heuristic 1: basic search;
+\item Heuristic 2: based on assumption of Markovian arrival rate at second queue;
+\item Heuristic 3: Based on Naor which applies only for single server systems.
+\end{itemize}
+
+\section{Results}\label{results}
+
+\begin{itemize}
+\item Scenarios...
+\end{itemize}
+
+\section{Conclusions and Further work}\label{conclusions}
+
+\end{document}
+
+% Starting from scratch, your stuff is below.
+
+\begin{abstract}
+
 In this paper, we consider a system consisting of $M/M/C$ queues arranged in series. When customers (referred to as players) arrive at a given queue as they move through the system, they make a decision, to either join the queue or skip it at a cost. The system is considered under two types of player behaviour, one where players act selfishly and one where there is a policy dictating the decisions of the players. Players acting selfishly will attempt to reduce their own cost with no thought to the cost of other players in the system. Alternatively a optimal social policy is considered that attempts to reduce the average cost per player. We use the Price of Anarchy as a measure of the inefficiency due to choice to observe the impact that individual behavior has on the system. An Agent Based Simulation is developed that is used in conjunction with various heuristic approaches to obtain the socially optimal and selfish behavior of players. Due to the high computational cost of this model an analytical approximation is obtained and used to identify the effect of the total arrival rate on the system as well as other system parameters. In particular an optimal dropout probability rate is obtained for various scenarios which could have applications such as the optimal referral rate of general practitioners to hierarchical medical services.
 
 \end{abstract}
@@ -67,6 +227,9 @@ In this paper and without loss of generality, cost is considered to be a unit-le
 
 To illustrate this effect, consider the classic game theory problem, the Prisoners Dilemma. The game is that two prisoners are being separately questioned and must decide whether to co-operate, or defect, and the cost to each player can be seen in Fig.\ref{fig:prisoner} . Under selfish conditions, both players defect, giving a cost per player of 5. However, if both players co-operate, the average cost per player is reduced to 1.
 
+\begin{center}
+  \includegraphics[width=.5\textwidth]{Images/Solver_Comp.pdf}
+\end{center}
 
 
 \begin{figure}[ht]
@@ -347,14 +510,14 @@ We considered a variation on a local search heuristic, where after choosing our 
 
  Another, simpler heuristic was investigated. A Random descent heuristic simply searches the solution space randomly, sometimes bound by conditions, but also completely unbound. While we experimented using a random walk which optimised each stations policy individually (labeled iterative \ref{fig:Solver_comp} ), it was found that this method was either similar, or at times worse than a completely random method. By again referring to Fig. \ref{fig:Solver_comp} we can see that this algorithm vastly out performed the local search algorithm.
 
-\begin{figure}[ht]
-    \begin{center}
-
-		\includegraphics[width=12cm]{Images/Solver_comp.pdf}
-		\caption{Comparison of the Local Search and Random Descent}
-		\label{fig:Solver_comp}
-    \end{center}
-\end{figure}
+%\begin{figure}[ht]
+%    \begin{center}
+%
+%		\includegraphics[width=12cm]{Images/Solver_comp.pdf}
+%		\caption{Comparison of the Local Search and Random Descent}
+%		\label{fig:Solver_comp}
+%    \end{center}
+%\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -399,27 +562,27 @@ C_{i} = \pi_{N}^{(i)} \beta_{i} + \sum_{j=0}^{c_{i}} \frac{\pi_{j}^{(i)}}{\mu_{i
 This is an analytical approximation and was verified by comparing it to the simulation model as can be seen in Fig.\ref{fig:Ana_comp}. The analytical model was a vast improvement in speed and efficiency over the simulation model. It allowed each possible policy to be evaluated and the expected cost per player to be approximated.a Searching the policy space exhaustively took less time than running a heuristic method.
 
 
-\begin{figure}[ht]
-    \begin{center}
-
-		\includegraphics[width=12cm]{Images/PoA_v_Demand_comparison_2S.pdf}
-		\caption{Comparison of the analytical model data to the simulation model for the case study}
-		\label{fig:Ana_comp}
-    \end{center}
-\end{figure}
+%\begin{figure}[ht]
+%    \begin{center}
+%
+%		\includegraphics[width=12cm]{Images/PoA_v_Demand_comparison_2S.pdf}
+%		\caption{Comparison of the analytical model data to the simulation model for the case study}
+%		\label{fig:Ana_comp}
+%    \end{center}
+%\end{figure}
 
 
 An assumption made to compute this analytical approximation was that the arrival rate into any given station was Markovian. However, due to this assumption the analytical model may not always give such a close approximation to the simulation result [\ref{fig:Bad_Analyt}]. This is due the fact that the equations used in \cite{cite018} assume an $M/M/C/K$ queue, but the dropout probability causes our system to become a series of $G/M/C/K$ queues.
 
 
-\begin{figure}[ht]
-    \begin{center}
-
-		\includegraphics[width=12cm]{Images/Bad_Analyt.pdf}
-		\caption{Comparison of the analytical model data to the simulation model with a dropout probability}
-		\label{fig:Bad_Analyt}
-    \end{center}
-\end{figure}
+%\begin{figure}[ht]
+%    \begin{center}
+%
+%		\includegraphics[width=12cm]{Images/Bad_Analyt.pdf}
+%		\caption{Comparison of the analytical model data to the simulation model with a dropout probability}
+%		\label{fig:Bad_Analyt}
+%    \end{center}
+%\end{figure}
 
 Considering the case such that we have no probability of a customer leaving the system, the system as a whole exhibits Quasi-reversibility\cite{cite018} which means that the arrival and departure rate is time independent. Burke's theorem \cite{cite025} states that an $M/M/C$ queue with arrival rate $\lambda$ which is sampled from a poison distribution has the following properties.
 
@@ -430,14 +593,14 @@ Considering the case such that we have no probability of a customer leaving the 
 
 It is possible to obtain the optimal social policy for a single $M/M/1$ queue, called the Naor threshold \cite{cite026}. The result given describes the threshold at which players should balk from a single queue, and some preliminary results show that for no dropout probability and 1 server and each station, this does hold for our system.
 
-\begin{figure}[ht]
-    \begin{center}
-
-		\includegraphics[width=12cm]{Images/pdf_graphs.pdf}
-		\caption{Showing that the probability of a player entering each station approximates a Markov distribution }
-		\label{fig:Markovian}
-    \end{center}
-\end{figure}
+%\begin{figure}[ht]
+%    \begin{center}
+%
+%		\includegraphics[width=12cm]{Images/pdf_graphs.pdf}
+%		\caption{Showing that the probability of a player entering each station approximates a Markov distribution }
+%		\label{fig:Markovian}
+%    \end{center}
+%\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -447,25 +610,25 @@ It is possible to obtain the optimal social policy for a single $M/M/1$ queue, c
 
 	The results that returned from both the analytical and simulation model showed that the exit probability had interesting effects on the Price of Anarchy. Our initial assumption was that the optimal social policy would always be less than the Nash policy, but this only held true when there was no chance for a player to leave the system. It was discovered that when we add an exit probability to a particular queue, it may improve the average cost per player if more players go through this queue. Fig.[\ref{fig:Exit_ext}] compares two different systems, one with two stations in series and one with 3. The Price of Anarchy was computed for both these systems, and when the search space was expanded we can see the Price of Anarchy increase (which corresponds to a drop in the average cost per player under social conditions).
 
-    \begin{figure}[ht]
-    	\begin{center}
-
-        	\includegraphics[width=10cm]{Images/plot_gate.pdf}
-            \caption{Increase in PoA when searching outside the selfish policy}
-            \label{fig:Exit_ext}
-      \end{center}
-	\end{figure}
+%    \begin{figure}[ht]
+%    	\begin{center}
+%
+%        	\includegraphics[width=10cm]{Images/plot_gate.pdf}
+%            \caption{Increase in PoA when searching outside the selfish policy}
+%            \label{fig:Exit_ext}
+%      \end{center}
+%	\end{figure}
 
     Another way in which the exit probability can affect the Price of Anarchy is to mask the presence of a second peak appearing in the demand curve, that can been seen appearing in many situations involving Price of Anarchy \cite{cite011}. The peaked profile is caused by a difference in players skipping under selfish and social conditions. The Price of Anarchy increases when players are skipping selfishly but not socially. The peak then decreases when the demand increases further and players skip under both conditions. A second peak occours in systems where there are multiple stations, and the demand at which a peak appears for each station are spread out. While a single peak was common throughout the course of the investigation, there did not seem to be any effect from the hierachical structure in most cases. The reason behind this was that the exit probability was lowering demand at stations further into the system, so that the demand was too low to cause this profile. Once demand reached a threshold and all the players skipped earlier queues, the rest of the system was flooded with additional demand, and the players skipped the later queues which removed the second peak. However, we can see this second peak in Fig.[\ref{fig:Sec_peak}] when there is a lower probability of players dropping out in a 2 queue system.
 
-        \begin{figure}[ht]
-    	\begin{center}
-
-        	\includegraphics[width=10cm]{Images/double_peak.pdf}
-            \caption{Second Peak appearing when 50\% of players dropout of the 1\textsuperscript{st} station}
-            \label{fig:Sec_peak}
-      \end{center}
-	\end{figure}
+%        \begin{figure}[ht]
+%    	\begin{center}
+%
+%        	\includegraphics[width=10cm]{Images/double_peak.pdf}
+%            \caption{Second Peak appearing when 50\% of players dropout of the 1\textsuperscript{st} station}
+%            \label{fig:Sec_peak}
+%      \end{center}
+%	\end{figure}
 
 
     Our case study consisted of a General Practitioners, which leads onto an accident and emergency center. Based on nhs data, the GP surgery had 5 doctors on hand, able to see 12.5 patients a day. Patients are willing to wait up to 2 days to see the GP. We made an assumption that an A\&E would have 5 doctors on hand to see patients from this particular GP surgery. The A\&E doctors can each see 48 patients a day, patients will wait up to 8 hours to see the A\&E doctor. However, if patients see a GP, 80\% of them will not have to go to A\&E, and simply leave the system there.
@@ -474,23 +637,23 @@ It is possible to obtain the optimal social policy for a single $M/M/1$ queue, c
    As previously mention, increasing the length that patients are willing to wait causes the PoA increases
  which can be seen in Fig. \ref{fig:Demandparam}. Also interesting to note is the appearance of a second peak can be seen as the value of service at the A\&E increases.
 
-    \begin{figure}[ht]
-    	\begin{center}
+%    \begin{figure}[ht]
+%    	\begin{center}
+%
+%        	\includegraphics[width=10cm]{Images/Varying_demand.pdf}
+%            \caption{Varying the value of service at each station as demand increases}
+%            \label{fig:Demandparam}
+%      \end{center}
+%	\end{figure}
 
-        	\includegraphics[width=10cm]{Images/Varying_demand.pdf}
-            \caption{Varying the value of service at each station as demand increases}
-            \label{fig:Demandparam}
-      \end{center}
-	\end{figure}
-
-    \begin{figure}[ht]
-    	\begin{center}
-
-        	\includegraphics[width=10cm]{Images/Varying_Parameters_EXT.pdf}
-            \caption{Varying the exit parameters for different balking costs}
-            \label{fig:EXTparam}
-      \end{center}
-	\end{figure}
+%    \begin{figure}[ht]
+%    	\begin{center}
+%
+%        	\includegraphics[width=10cm]{Images/Varying_Parameters_EXT.pdf}
+%            \caption{Varying the exit parameters for different balking costs}
+%            \label{fig:EXTparam}
+%      \end{center}
+%	\end{figure}
 
 
 \break
