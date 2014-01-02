@@ -6,7 +6,9 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{ulem}
+
 \usepackage{fullpage}
+\usepackage{parskip}
 
 \usepackage{amsmath,tikz}
 \usetikzlibrary{shapes.geometric,arrows,positioning,calc}
@@ -99,13 +101,53 @@ $$
 The contribution of this paper is to consider two stations (to avoid confusion we will refer to a queue and service station as a station) in series allowing for two consecutive decisions: whether or not to join the station.
 Players who join the first station upon completion of service will potentially drop out from the entire system.
 A potential application of this is a healthcare system where patients must choose to see their general practitioner before obtaining care from a specialist/emergency centre.
+
 In Section \ref{model}, the model will be described.
 A novel aspect of this work is that the cost of a given policy is evaluated through the use of purpose built Agent Based Simulation (ABS).
 In Section \ref{heuristicoptimalpolicies} various heuristic approaches to obtaining optimal policies are considered.
 These range from random search algorithms to a more sophisticated approach that depends on the analytical formula for an $M/M/c$ queue \cite{Stewart}.
+Before concluding in Section \ref{conclusions} a variety of numerical experiments will be shown in Section \ref{results} demonstrating the effect of selfish decision making in queues in series.
 
+\section{Model}\label{model}
+
+Let $k\{1,2\}$ be the index for each station in the system.
+The players arrive into the system at a rate $\Lambda$.
+The players know the rate of service $\mu_k$ at each station, the number of servers at each station $c_k$ and also the number of players currently in each station.
+Upon observing a station, players must select one of two potential strategies: `join' or `skip'.
+The strategy picked at station $k$ is denoted by $d_k\in\{0,1\}$:
+
+\begin{equation}\label{eq:decision}
+    d_k=
+\begin{cases}
+    1,& \text{if player joins queue } k \\
+    0,& \text{if player skips queue } k
+\end{cases}
+\end{equation}
+
+The cost associated with joining system $k$ is denoted by $J_k$ and corresponds to the actual time spent in system $k$.
+The cost associated with skipping station $k$ is denoted by $\beta_k$.
+The cumulative cost of going through the entire system is given by $C=C(d)=C_1(d)+C_2(d)$ where:
+
+\begin{equation}\label{eq:actualcost}
+C_{k} = \begin{cases}
+        \beta_k&\text{if }d_k=0\\
+        J_k&\text{if }d_k=1\\
+        \end{cases}
+\end{equation}
+
+The expected value of $J_k$ when there are $m$ players present upon arrival in system $k$ is given by:
+
+\begin{equation} \label{eq:expect}
+	E[J_{k}] = \frac{m+1}{\mu_k c_k}
+\end{equation}
+
+A final parameter of our model is the dropout probability $p$.
+This is the probability with which a player who joins the first station will exit the entire system (implying $C_2=0$).
+
+All of this is summarised in Figure \ref{game_pic}.
 
 \begin{figure}[!hpbt]
+\begin{center}
 \begin{tikzpicture}[scale=.7]
             \draw (0,0) node[terminal] (A) {};
             \node (B) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at (2, 0) {$d_1$};
@@ -115,11 +157,11 @@ These range from random search algorithms to a more sophisticated approach that 
             \draw (5,0) node[player] (D) {};
             \draw [Arrow] (A) -- (B);
             \draw [Arrow] (B) -- (C);
-            \node (E) [rectangle, fill=blue!100, draw, minimum width=.75cm, minimum height=2cm, right=1.0cm of Q] {};
+            \node (E) [rectangle, fill=blue!10, draw, minimum width=.75cm, minimum height=2cm, right=1.0cm of Q] {};
             \draw [Arrow] (D) -- (E);
-            \node (F) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at (E) {};
-            \node (G) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at ($(E) + (0,.8)$) {};
-            \node (H) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at ($(E) + (0,-.8)$) {};
+            \node (F) [rectangle, fill=green!30, draw, minimum width=.6cm, minimum height=.6cm] at (E) {};
+            \node (G) [rectangle, fill=green!30, draw, minimum width=.6cm, minimum height=.6cm] at ($(E) + (0,.8)$) {};
+            \node (H) [rectangle, fill=green!30, draw, minimum width=.6cm, minimum height=.6cm] at ($(E) + (0,-.8)$) {};
             \draw node[player] at (F) {};
             \draw node[player] at (G) {};
             \draw node[player] at (H) {};
@@ -129,37 +171,49 @@ These range from random search algorithms to a more sophisticated approach that 
 
             \node (Z) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at ($(E) + (3,0)$) {$d_2$};
 
-            \node (R) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at ($(Z) + (3,0)$) {$d_n$};
+%            \node (R) [diamond, fill=blue!20, draw, minimum width=1.5cm, minimum height=1cm] at ($(Z) + (3,0)$) {$d_n$};
             \draw [Arrow] (E) -- (Z);
-            \draw node[player] (I) at ($(R) + (2,0)$) {};
+            \draw node[player] (I) at ($(Z) + (2,0)$) {};
             \draw node[player] (J) at ($(I) + (.5,0)$) {};
-            \node (K) [rectangle, fill=blue!100, draw, minimum width=.75cm, minimum height=2cm, right=.5cm of J] {};
-            \draw [Arrow] (R) -- (I);
+            \node (K) [rectangle, fill=blue!10, draw, minimum width=.75cm, minimum height=2cm, right=.5cm of J] {};
+            \draw [Arrow] (Z) -- (I);
             \draw [Arrow] (J) -- (K);
-            \node (L) [rectangle, fill=green!80, draw, minimum width=.6cm, minimum height=.6cm] at (K) {};
+            \node (L) [rectangle, fill=green!30, draw, minimum width=.6cm, minimum height=.6cm] at (K) {};
             \draw node[player] at (L) {};
             %%%%% End station %%%%
             \node (M) [terminal] at ($(K) + (3,0)$) {};
             \draw [Arrow] (K) -- (M);
             %%%%% Edges %%%%%
-            \draw (R) edge[out=85,in=90,Arrow] node [above] {$\beta_n$} (M);
+            \draw (Z) edge[out=85,in=90,Arrow] node [above] {$\beta_n$} (M);
             \draw (B) edge[out=85,in=90,Arrow] node [above] {$\beta_1$} (Z);
-            \node at ($(K) + (0,1.75)$) {$c_n=1$};
-            \node at ($(K) + (-.95,-1)$) {$\mu_n$};
+            \node at ($(K) + (0,1.75)$) {$c_2=1$};
+            \node at ($(K) + (-.95,-1)$) {$\mu_2$};
             \node at (A) {$\Lambda$};
 
-            %%%%% My bit %%%%%
-
-            \node[draw=none,fill=none] at ($(Z)+ (1.5,0)$) {...};
+            %%%%% Dropout probability %%%%
+            \draw ($(Z) !.5! (E)$) edge[Arrow] node [below = .25cm] {$p$} ($(Z) !.5! (E) + (0,-1)$);
 
         \end{tikzpicture}
+    \end{center}
 
-    \caption{Diagram of n stations in series}
+    \caption{Diagrammatic representation of the model considered.}
 	\label{game_pic}
 
 \end{figure}
 
-\section{Model}\label{model}
+A player moving through the system with $n$ stations can expect to receive a cost of (\ref{eq:total}) when making a choice $d_k$(\ref{eq:decision}) at queue $k$ .
+
+
+
+
+\begin{equation}\label{eq:total}
+E[\xi_n] = \sum_{i=1}^{n}{(1-d_i)\left(\frac{m_i+1}{\mu_ic_i}\right)} + \sum_{i=1}^{n}{d_i\beta_i}
+\end{equation}
+
+% We want to write down a policy. That all players should follow. This will then give a mean cost for all players. This is what is implied by a social policy...
+We want to instigate a policy which minimises the average cost per player, which is known as the optimal social policy. In the system, the policy is the length of the queue at which a player arriving at the queue will balk from it. Now consider Fig.\ref{fig:param}, and we can see that a player skips from this queue if there are 3 people in the queue.
+
+By considering policies which benefit the system by reducing the average cost per player, we can see the effect of choice in this system, which is what is implied by a social policy (we also say that the system is under social conditions). Within this paper, we consider the Price of Anarchy (\ref{eq:POA}) or PoA, the ratio of average cost per player under selfish conditions (given by $\tilde\tau$), to the average cost per player under social conditions (given by $\tau^*$). In the earlier example concerning the prisoners dilemma, the Price of Anarchy is $ 5/1 = 5$
 
 \begin{itemize}
     \item Parameters;
@@ -167,6 +221,9 @@ These range from random search algorithms to a more sophisticated approach that 
     \item Selfish behaviour.
     \item Cost (how to verify that cost is correct?).
 \end{itemize}
+
+
+
 
 \begin{figure}[ht]
 
