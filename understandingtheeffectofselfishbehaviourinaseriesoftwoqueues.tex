@@ -1,6 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage{verbatim}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage[english]{babel}
 \usepackage{caption}
@@ -30,9 +31,9 @@
 
 \tikzstyle{Terminal} = [draw, fill=red!60,thick ,rectangle ,rounded corners, minimum width=3cm, minimum height=1cm]
 
-\tikzstyle{Decision} = [draw, fill=blue!60,thick ,diamond ,minimum width=3.5cm, minimum height=1.5cm]
+\tikzstyle{Decision} = [draw, diamond ,minimum width=3.5cm, minimum height=1.5cm]
 
-\tikzstyle{Result} = [draw ,fill=blue!60 , shape = rectangle, minimum width=1.5cm, minimum height=.8cm]
+\tikzstyle{Result} = [draw , shape = rectangle, minimum width=1.5cm, minimum height=.8cm]
 
 \tikzstyle{Arrow} = [->, >=latex', shorten >=1pt, thick]
 
@@ -63,13 +64,6 @@ Heuristics developed to obtain optimal policies;
 \end{abstract}
 
 \section{Introduction}\label{Introduction}
-
-\begin{itemize}
-    \item Hierarchy in real life queues;
-    \item Review of papers in BQT;
-    \item PoA;
-    \item Discussion of situation being modelled in this paper.
-\end{itemize}
 
 Queues arise in a variety of settings: road traffic, data transfer and healthcare are just a few examples.
 A large quantity of literature has investigated strategic decision making (for example: whether or not to join a queue) with regards to queues stemming from \cite{}.
@@ -184,7 +178,7 @@ All of this is summarised in Figure \ref{game_pic}.
             \node (M) [terminal] at ($(K) + (3,0)$) {};
             \draw [Arrow] (K) -- (M);
             %%%%% Edges %%%%%
-            \draw (Z) edge[out=85,in=90,Arrow] node [above] {$\beta_n$} (M);
+            \draw (Z) edge[out=85,in=90,Arrow] node [above] {$\beta_2$} (M);
             \draw (B) edge[out=85,in=90,Arrow] node [above] {$\beta_1$} (Z);
             \node at ($(K) + (0,1.75)$) {$c_2=1$};
             \node at ($(K) + (-.95,-1)$) {$\mu_2$};
@@ -196,36 +190,58 @@ All of this is summarised in Figure \ref{game_pic}.
         \end{tikzpicture}
     \end{center}
 
-    \caption{Diagrammatic representation of the model considered.}
+    \caption{Diagrammatic representation of the model.}
 	\label{game_pic}
 
 \end{figure}
 
-A player moving through the system with $n$ stations can expect to receive a cost of (\ref{eq:total}) when making a choice $d_k$(\ref{eq:decision}) at queue $k$ .
+If a general population of players is considered a state dependent policy $\tau = (n_1, n_2)$ can be defined that all players follow.
+In general this policy will be of the form:
 
+$$d_k = \begin{cases}
+1,& \text{if }m_k\leq n_k\\
+0,&\text{ otherwise}
+\end{cases}$$
 
+Where $m_k$ is the number of players present at station $k$ upon having to make a decision $d_k$.
+In other words a policy $\tau$ is a set of two threshold policies, one for each station, simply denoting a threshold at which players skip.
+As $d=d(\tau)$ we have $C=C(\tau)$.
 
+The optimal cost is thus defined as:
 
-\begin{equation}\label{eq:total}
-E[\xi_n] = \sum_{i=1}^{n}{(1-d_i)\left(\frac{m_i+1}{\mu_ic_i}\right)} + \sum_{i=1}^{n}{d_i\beta_i}
+\begin{equation}\label{eq:optimal}
+C^*=\min_{\tau\in\mathbb{Z}^2}C(\tau)
 \end{equation}
 
-% We want to write down a policy. That all players should follow. This will then give a mean cost for all players. This is what is implied by a social policy...
-We want to instigate a policy which minimises the average cost per player, which is known as the optimal social policy. In the system, the policy is the length of the queue at which a player arriving at the queue will balk from it. Now consider Fig.\ref{fig:param}, and we can see that a player skips from this queue if there are 3 people in the queue.
+Note that the restriction of the optimisation problem to only consider stationary policies is potentially an incorrect one.
+Indeed, a non homogeneous policy could in fact be optimal however \textbf{FIND REFERENCE AND PAPER THAT SAYS THAT AN OPTIMAL POLICY WOULD BE HOMOGENOUS}.
 
-By considering policies which benefit the system by reducing the average cost per player, we can see the effect of choice in this system, which is what is implied by a social policy (we also say that the system is under social conditions). Within this paper, we consider the Price of Anarchy (\ref{eq:POA}) or PoA, the ratio of average cost per player under selfish conditions (given by $\tilde\tau$), to the average cost per player under social conditions (given by $\tau^*$). In the earlier example concerning the prisoners dilemma, the Price of Anarchy is $ 5/1 = 5$
+The particular policy that gives $C^*$ will be denoted as $\tau^*$.
+Another policy that will be considered in this paper is the selfish policy $\tilde\tau$.
+The selfish policy is the policy under which individual players reduce their expected cost.
 
-\begin{itemize}
-    \item Parameters;
-    \item Optimal behaviour;
-    \item Selfish behaviour.
-    \item Cost (how to verify that cost is correct?).
-\end{itemize}
+To obtain the selfish policy a further assumption is made: players are pessimistic.
+It is assumed that players ignore the dropout probability $p$ at decision $d_1$ so that we have (recall equation (\ref{eq:decision})):
 
+\begin{equation}\label{eq:selfishdecision}
+    \tilde d_k=
+\begin{cases}
+    1,& \text{if } E[J_k] \leq \beta_k \\
+    0,& \text{otherwise}
+\end{cases}
+\end{equation}
 
+This in turn gives (recalling (\ref{eq:expect})):
 
+\begin{equation}\label{eq:selfishpolicy}
+\tilde\tau = \left(\lfloor\beta_1\mu_1 c_1 - 1\rfloor,\lfloor\beta_2\mu_2 c_2 - 1\rfloor\right)
+\end{equation}
 
-\begin{figure}[ht]
+To evaluate the $C(\tau)$ for given $\tau$ a bespoke simulation model has been developed  (written in Python \cite{web001}).
+The model itself is a combination of Discrete Event \cite{cite003} and Agent Based \cite{cite004} Simulation (taking advantage of the Object Orientated framework available in Python).
+The flow of the simulation model is shown in Figure \ref{fig:Simflow}.
+
+\begin{figure}[!hbpt]
 
         \begin{tikzpicture}[scale=.6]
         \tikzstyle{every node} = [font=\scriptsize ]
@@ -284,26 +300,26 @@ By considering policies which benefit the system by reducing the average cost pe
 	\label{fig:Simflow}
 \end{figure}
 
-\begin{figure}[!hbtp]
-    \begin{center}
-        \includegraphics[width=.8\textwidth]{Images/Run_Time.pdf}
-    \end{center}
-    \caption{Run time}\label{runtime}
-\end{figure}
+The input to the model (apart from the system parameters described in Section \ref{model}) is a policy $\tau$ and the required output is $C(\tau)$.
+An investigation of run time, warm up time, and number of trials was carried out to ensure a reliable value of $C(\tau)$ is output \cite{cite013}.
+Graphical methods were used for system parameters discussed in Section \ref{results} and are shown in Figure \ref{runtime}.
 
 \begin{figure}[!hbtp]
-    \begin{center}
-        \includegraphics[width=.8\textwidth]{Images/Trials.pdf}
-    \end{center}
-    \caption{Trials}\label{trials}
+    $$\begin{array}{ccc}
+        \includegraphics[width=.3\textwidth]{Images/Run_Time.pdf}&
+        \includegraphics[width=.3\textwidth]{Images/Warm_up.pdf}&
+        \includegraphics[width=.3\textwidth]{Images/Trials.pdf}\\
+        \text{a: Run Time}& \text{b: Warm up time}& \text{c: Number of trials}
+    \end{array}$$
+    \caption{Investigating run time, warm up time and number of trials required to obtain reliable values of $C(\tau)$}\label{runtime}
 \end{figure}
 
-\begin{figure}[!hbtp]
-    \begin{center}
-        \includegraphics[width=.8\textwidth]{Images/Warm_up.pdf}
-    \end{center}
-    \caption{Warm up}\label{warmup}
-\end{figure}
+A run time of 250 time units was shown to reduce the variation in $C(\tau)$ (Figure \ref{runtime}a) whilst a warm up period of 50 time units reduced gave a stable utilisation of servers (Figure \ref{runtime}b).
+Finally experiments of 16 trials each were chosen despite the lack of variation shown in Figure \ref{runtime}c.
+This relatively large number of trials did not prove to be computationally expensive as they were all run in parallel using \ref{web002}.
+
+As discussed, the simulation model is used as an objective function for a given $\tau$.
+In the next section, various heuristic approaches to obtaining $\tau^*$ (recall (\ref{eq:optimal}): this corresponds to the optimal policy) will be discussed.
 
 \section{Heuristic Optimal Policies}\label{heuristicoptimalpolicies}
 
@@ -488,7 +504,7 @@ A player arriving at queue $k$ and observing $m$ agents ahead of them will expec
 	E[\sigma_{k}] = \frac{m+1}{\mu_k c_k}
 \end{equation}
 
-where $\sigma_{k}$ denotes the actual cost to a player at station k.
+Where $\sigma_{k}$ denotes the actual cost to a player at station k.
 
 In addition, we let $\xi$ denote the cumulative cost incurred by a player moving through the system. $T_{k}$ in eq \ref{eq:actualcost} denotes the actual time spent in station $k$ by a player. It is the sum of the time spent waiting to be served ($T^{w}_{k}$) and the time spent being served ($T^{s}_{k}$). Thus we have the cumulative cost to a player in station
 
