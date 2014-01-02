@@ -207,10 +207,12 @@ Where $m_k$ is the number of players present at station $k$ upon having to make 
 In other words a policy $\tau$ is a set of two threshold policies, one for each station, simply denoting a threshold at which players skip.
 As $d=d(\tau)$ we have $C=C(\tau)$.
 
+DISCUSS SOLUTION SPACE FOR $\tau$: $\Omega$.
+
 The optimal cost is thus defined as:
 
 \begin{equation}\label{eq:optimal}
-C^*=\min_{\tau\in\mathbb{Z}^2}C(\tau)
+C^*=\min_{\tau\in\Omega}E[C(\tau)]
 \end{equation}
 
 Note that the restriction of the optimisation problem to only consider stationary policies is potentially an incorrect one.
@@ -323,32 +325,110 @@ In the next section, various heuristic approaches to obtaining $\tau^*$ (recall 
 
 \section{Heuristic Optimal Policies}\label{heuristicoptimalpolicies}
 
+Using the simulation model as an objective function a variety of search based heuristics have been tested \cite{}. All of these use $\tilde\tau$ as an initial solution and make minor perturbations accepting improvements within a specific region:
+
 \begin{itemize}
-\item Heuristic 1: basic search;
-\item Heuristic 2: based on assumption of Markovian arrival rate at second queue;
-\item Heuristic 3: Based on Naor which applies only for single server systems.
+    \item Fixed search range: randomly evaluate a fixed range around the initial policy;
+    \item Variable search range: increase the range of the search range;
+    \item Random descent: randomly search the entire solution space;
+    \item Iterative random descent: JASON CHECK THESE AND ALSO INCLUDE A SENTENCE FOR THIS ONE. I DONT LIKE THE NAMES. ARE THEY THE CORRECT NAMES?
 \end{itemize}
 
-\begin{figure}[!hbtp]
-    \begin{center}
-        \includegraphics[width=.8\textwidth]{Images/Solver_Comp.pdf}
-    \end{center}
-    \caption{Comparing basic search}\label{basicsearch}
-\end{figure}
+\subsection{Heuristic 1}\label{heuristic1}
+
+A comparison of the performance of the various heuristics above is shown in Figure \ref{basicsearch}.
 
 \begin{figure}[!hbtp]
     \begin{center}
-        \includegraphics[width=.8\textwidth]{Images/CaseStudyComp.pdf}
+        \includegraphics[width=.6\textwidth]{Images/Solver_Comp.pdf}
+    \end{center}
+    \caption{Comparing local search heuristics}\label{basicsearch}
+\end{figure}
+
+As shown, the most efficient of the chosen heuristics is the `Random Descent'.
+This algorithm is nonetheless computationally expensive.
+Some scenarios of Section \ref{results} taking various hours to run (despite the use of \cite{web002}).
+The aim of the work presented here is to gain a global understanding of PoA behaviour and as such a large number of optimisations are needed.
+The next sections will demonstrate further heuristics.
+
+\subsection{Heuristic 2}\label{heuristic2}
+
+This heuristic is based on the assumption that the arrival rate $\lambda_2$ at the second station is in fact Markovian.
+For $p=0$ this is in fact not an assumption \ref{} however for $p>0$ the arrival rates at the second station no longer exhibit Markovian behaviour.
+Nevertheless as shown in Figure \ref{casestudycomp} this heuristic performs very favourably and in fact the non Markovian behaviour seems to not affect the performance of our heuristic.
+
+The arrival rate at the second station is given by:
+
+\begin{equation}
+\lambda_2 = \Lambda\times(1-p\times(1-\pi^{(1)}_{n_1}))
+\end{equation}
+
+Where $\tau=(n_1, n_2)$ and $\pi^{(1)}_{i}$ is the probability that the first station is in state $0\leq i\leq n_1$.
+Note that the first station corresponds to an $M/M/c/n_1$ queue and so we have:
+
+\begin{equation}\label{eq:probcl}
+  \pi^{(1)}_i = \frac{1}{i!}\left(\frac{\Lambda}{\mu_1}\right)^{i}\pi_{0} \hspace{1cm} 0\leq i \leq c_i
+\end{equation}
+
+\begin{equation}\label{eq:probc_im}
+  \pi^{(1)}_i = \frac{1}{c_i^{i-c_i}c_i!}\left(\frac{\Lambda}{\mu_1}\right)^{i}\pi_{0} \hspace{1cm} c_i< i \leq K
+\end{equation}
+
+where
+
+\begin{equation}
+\pi^{(1)}_{0} = \left[ \sum_{n=0}^{c_i-1} \frac{1}{n!} \left( \frac{\Lambda}{\mu_1} \right)^{n}  + \sum_{n=c_i}^{K} \frac{1}{c_i^{n-c_i}c_i!} \left( \frac{\Lambda}{\mu_1} \right)^{n} \right] ^{-1}
+\end{equation}
+
+Using the Markovian assumption as to the distribution of $\lambda_2$ a similar formula for $\pi_i^{(2)}$ can be obtained, replacing the relevant parameters.
+
+Using this and recalling (\ref{actualcost}):
+
+\begin{equation}\label{eq:ciapprox}
+E[C_{i}] \approx \pi_{n_i}^{(i)} \beta_{i} + \sum_{j=0}^{c_{i}} \frac{\pi_{j}^{(i)}}{\mu_{i}} + \sum_{j=c_{i}}^{n_i-1}\frac{ \pi_{j}^{(i)}(j+1)}{ \mu_{i} c_{i}}
+\end{equation}
+
+and so:
+
+\begin{equation}\label{eq:approxcost}
+E[C]\approx E[C_1] + \frac{\lambda_2E[C_2]}{\Lambda}
+\end{equation}
+
+Note that the approximation of (\ref{eq:ciapprox}) is in fact an equality for $i=1$.
+Using (\ref{eq:approxcost}) the cost of any policy $\tau$ can be approximated immediately and so $\tau^*$ can be heuristically obtained by an exhaustive search of the solution space.
+To obtain an actual mean cost of $\tau^*$ the simulation model needs to only be run once.
+A comparison of heuristics 1 and 2 is shown in Figure \ref{casestudycomp}, it is evident that the assumption made with regards to the Markovian nature of $\lambda_2$ do not seem to have a large effect.
+The fact that results for $\Lambda >130$ are not shown for heuristic 1 are due to the fact that they were not obtained as they required more than 80 hours of computations on \cite{web002}.
+
+\begin{figure}[!hbtp]
+    \begin{center}
+        \includegraphics[width=.6\textwidth]{Images/CaseStudyComp.pdf}
     \end{center}
     \caption{Comparing Heuristic 1 and 2}\label{casestudycomp}
 \end{figure}
 
+Before considering various results in Section \ref{results}, one final heuristic is proposed that only applies if $c_1=c_2=1$.
+
+\subsection{Heuristic 3}\label{heuristic3}
+
+In \cite{Naor} thresholds $n^*$ are obtained for single server queues that optimise the expected cost. $n^*$ is shown to be the solution to the following inequality:
+
+\begin{equation}\label{eq:naor}
+  \leq  n ^ * \leq
+\end{equation}
+
+Using (\ref{eq:naor}) another potential policy is $\tau = (n^*_1, n^*_2)$.
+Figure \ref{allheuristics} shows a comparison of these three heuristic approaches for a series of single server queues.
+
 \begin{figure}[!hbtp]
     \begin{center}
-        \includegraphics[width=.8\textwidth]{Images/Exit0.pdf}
+        \includegraphics[width=.6\textwidth]{Images/Exit0.pdf}
     \end{center}
     \caption{Comparing all heuristics}\label{allheuristics}
 \end{figure}
+
+All the heuristics seem to behave adequately (this has been confirmed through a large quantity of experimentation).
+For the purposes of this paper heuristic 2 will be used from now on given the very low computational cost.
 
 \section{Results}\label{results}
 
