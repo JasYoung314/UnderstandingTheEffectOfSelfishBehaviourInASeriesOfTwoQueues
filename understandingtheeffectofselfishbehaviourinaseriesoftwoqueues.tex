@@ -452,8 +452,16 @@ $$p=.8$$
 For these sets of parameters, using heuristic 2 a Price of Anarchy can be calculated.
 For example for $\Lambda=?$ the PoA is 5 which implies that the overall patient utility is 5 times as bad when patients act selfishly.
 
-Figure \ref{ana_lambda} shows the effect of $\Lambda$ on the PoA.
-
+Figure \ref{ana_lambda} shows the effect of $\Lambda$ on the PoA for different values of service ($\beta$).
+The profile of this curve is very similar to profiles of curves seen in \cite{VKPH}.
+For low demand the PoA is 1: this implies that the capacity of the system is sufficient to deal with the actions of selfish users.
+As the demand increases, the first station starts to get congested.
+Optimal behaviour will at this point encourage players to skip the first queue (before the expected wait reaches $\beta_1$.
+Selfish users however will wait until the system becomes very busy before they are willing to start skipping.
+This occurs when the demand increases further and we see an initial drop of the PoA.
+Recall that this simply implies that selfish users are not causing the system to behave in a different way to the optimal behaviour.
+This is something that has been noted in the literature: \cite{bunchofpapers}: in congested systems selfish users don't make a difference.
+This is particularly relevant to healthcare where most healthcare systems are already severely over congested.
 
 \begin{figure}[!hbtp]
     \begin{center}
@@ -461,25 +469,27 @@ Figure \ref{ana_lambda} shows the effect of $\Lambda$ on the PoA.
     \end{center}
     \caption{PoA for varying lambda}\label{ana_lambda}
 \end{figure}
-We can see in Fig.\ref{fig:EXTparam} (where we are modeling the above system), there does exist a dropout probability the minimises the negative impact due to choice. However in the practical situation of sending 85\% (Fig.\ref{fig:EXTparam}) of patients to an A\&E, it may not be feasible to implement this dropout probability.
 
-\begin{figure}[!hbtp]
-    \begin{center}
-        \includegraphics[width=.8\textwidth]{Images/AnaExit.pdf}
-    \end{center}
-    \caption{PoA for varying exit prob}\label{anaexit}
-\end{figure}
 As previously mention, increasing the length that patients are willing to wait causes the PoA increases
  which can be seen in Fig. \ref{fig:Demandparam}. Also interesting to note is the appearance of a second peak can be seen as the value of service at the A\&E increases.
 
 \begin{figure}[!hbtp]
     \begin{center}
-        \includegraphics[width=.8\textwidth]{Images/DualPeak.pdf}
+        \includegraphics[width=.6\textwidth]{Images/DualPeak.pdf}
     \end{center}
     \caption{Another set of scenarios}\label{dualpeak}
 \end{figure}
 
 \section{Conclusions and Further work}\label{conclusions}
+
+We can see in Fig.\ref{fig:EXTparam} (where we are modeling the above system), there does exist a dropout probability the minimises the negative impact due to choice. However in the practical situation of sending 85\% (Fig.\ref{fig:EXTparam}) of patients to an A\&E, it may not be feasible to implement this dropout probability.
+
+\begin{figure}[!hbtp]
+    \begin{center}
+        \includegraphics[width=.6\textwidth]{Images/AnaExit.pdf}
+    \end{center}
+    \caption{PoA for varying exit prob}\label{anaexit}
+\end{figure}
 
 \end{document}
 
