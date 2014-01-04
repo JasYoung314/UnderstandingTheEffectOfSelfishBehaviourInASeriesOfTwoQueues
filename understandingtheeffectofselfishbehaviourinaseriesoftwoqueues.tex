@@ -7,6 +7,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{ulem}
+\usepackage{hyperref}
 
 \usepackage{fullpage}
 \usepackage{parskip}
@@ -66,44 +67,49 @@ The decisions of customers at the entry to both queues thus has an impact on the
 What damage do the selfish choices of some afflict onto the welfare of all?
 The work presented in this paper answers this question in the context of queues in series.
 
-There is a substantial quantity of literature on the subject of equilibrium behaviour of a queueing system where congestion is a factor influencing behaviour \cite{bell1983individual, edelson1971congestion, chr1972individual, luski1976partial, naor1969regulation, yechiali1972customers}.
+There is a substantial quantity of literature on the subject of equilibrium behaviour of a queueing system where congestion is a factor influencing behaviour \cite{bell1983individual,chr1972individual,  edelson1971congestion, luski1976partial, naor1969regulation, yechiali1972customers}.
 This can be traced back to a set of short communications between Leeman \cite{leeman1964reduction, leeman1965letter} and Saaty \cite{saaty1965burdens}.
 
-This paper builds on this literature by considering the problem of public service systems.
+This paper builds on this literature by considering a particular network of queues.
 For most public services, congestion is a negative aspect of service quality.
 When leaving one queue; customers (which we will refer to as players) often join a second queue and this is what is referred to as a hierarchical queueing system (as shown in Figure \ref{game_pic}).
 
-There is a wide range of literature evidencing the negative effect of selfish actions in queueing systems \cite{}.
 The following is a general conclusion of a majority of the literature:
 
-\begin{quote}
-Selfish users make busier systems.
-\end{quote}
+\begin{center}
+\textit{Selfish users make busier systems.}
+\end{center}
 
-\begin{itemize}
-    \item Naor;
-    \item VK+PH;
-    \item RS;
-    \item Bell Stidham;
-    \item Hassani book;
-    \item Rouhgharden;
-\end{itemize}
+Naor cites the initial exchange between Leeman and Saaty as the motivation for his early work on queuing systems.
+In \cite{naor1969regulation}, thresholds are obtained that give the number of players $\tilde n$ at which selfish users should ``balk'' a particular queue.
+Furthermore, a threshold $n^*$ is obtained that ensures average optimal utility.
 
-The effect of selfish behaviour when compared to optimal behaviour can be quantified as the Price of Anarchy (PoA).
+In \cite{bell1983individual}, similar work is carried out for multiple $M/M/1$ queues in parallel where players chose which queue to join.
+Importantly, this work differs from \cite{naor1969regulation} in that it considers ``unobservable'' queues.
+
+In \cite{knight2012comparisons}, results are given regarding the comparison of observable and unobservable approaches.
+
+A good review of the mentioned works and further pieces of literature is found in \cite{hassin2003queue}.
+
+The effect of selfish behaviour when compared to optimal behaviour in game theoretical contexts is measured as the ``Price of Anarchy'' (PoA) \cite{koutsoupias2009worst, roughgarden2002bad}.
 This is defined as the ratio of the selfish ($\tilde C$) and optimal ($C^*$) costs:
 
 $$
 \PoA = \frac{\tilde C}{C^*}
 $$
 
+In \cite{knight2013selfish} the PoA is calculated for a healthcare system.
+Patient choices between hospitals are considered as $M/M/c$ queues in parallel.
+
 The contribution of this paper is to consider two stations (to avoid confusion we will refer to a queue and service station as a station) in series allowing for two consecutive decisions: whether or not to join the station.
 Players who join the first station upon completion of service will potentially drop out from the entire system.
 A potential application of this is a healthcare system where patients must choose to see their general practitioner before obtaining care from a specialist/emergency centre.
+If unable to get an appointment within a short enough period of time, patients may choose to go directly to their specialist/emergency centre \cite{Mail_millions}.
 
 In Section \ref{model}, the model will be described.
 A novel aspect of this work is that the cost of a given policy is evaluated through the use of purpose built Agent Based Simulation (ABS).
 In Section \ref{heuristicoptimalpolicies} various heuristic approaches to obtaining optimal policies are considered.
-These range from random search algorithms to a more sophisticated approach that depends on the analytical formula for an $M/M/c$ queue \cite{Stewart}.
+These range from random search algorithms to a more sophisticated approach that depends on the analytical formula for an $M/M/c$ queue \cite{stewart2009probability}.
 Before concluding in Section \ref{conclusions} a variety of numerical experiments will be shown in Section \ref{results} demonstrating the effect of selfish decision making in queues in series.
 
 \section{Model}\label{model}
