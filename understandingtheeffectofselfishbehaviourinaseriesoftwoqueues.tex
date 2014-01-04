@@ -23,8 +23,6 @@
 \tikzstyle{player} = [draw, fill=red!80, shape=circle, minimum width=.25cm]
 \tikzstyle{terminal} = [draw, shape = rectangle, fill=red!60, minimum width=.75cm, minimum height=.75cm]
 
-
-
 %%% ------- Simulation ------- %%%%
 
 \tikzstyle{Process} = [draw, shape = rectangle, fill=blue!20, minimum width=2.5cm, minimum height=1cm, text width=1.5cm,align=center]
@@ -39,34 +37,40 @@
 
 \tikzstyle{left} = [draw, -latex',thick]
 
-
 \title{Understanding the effect of selfish behaviour in a series of two queues.}
 \author{Jason Young, Vincent Knight}
 
-
 \begin{document}
-
-When the cat goes: the paper is ready.
-
-\begin{center}
-  \includegraphics[width=.5\textwidth]{Images/cat.jpg}
-\end{center}
 
 \maketitle
 
 \begin{abstract}
 
-Hierarchical queues in HC;
-PoA;
-Simulation model;
-Heuristics developed to obtain optimal policies;
+Healthcare systems and other queueing systems are often a series of complex queueing networks.
+The best designed network can exhibit sub-optimal behaviour if the users of the system act rationally.
+This is a basic idea underlying Game Theory.
+
+
+There is a vast quantity of literature understanding this inefficiency which can be measured using a game theoretical measure entitled: Price of Anarchy (PoA).
+However, most of the corresponding work concentrates on queues in isolation and/or in parallel.
+
+In this paper two queues are considered in series.
+The decisions of customers at the entry to both queues thus has an impact on the efficiency of the entire system.
 
 \end{abstract}
 
+% Keywords: Hierarchical queues in HC; PoA; Simulation model; Heuristics developed to obtain optimal policies;
+
 \section{Introduction}\label{Introduction}
 
-Queues arise in a variety of settings: road traffic, data transfer and healthcare are just a few examples.
-A large quantity of literature has investigated strategic decision making (for example: whether or not to join a queue) with regards to queues stemming from \cite{}.
+What damage do the selfish choices of some afflict onto the welfare of all?
+The work presented in this paper answers this question in the context of queues in series.
+
+There is a substantial quantity of literature on the subject of equilibrium behaviour of a queueing system where congestion is a factor influencing behaviour \cite{bell1983individual, edelson1971congestion, chr1972individual, luski1976partial, naor1969regulation, yechiali1972customers}.
+This can be traced back to a set of short communications between Leeman \cite{leeman1964reduction, leeman1965letter} and Saaty \cite{saaty1965burdens}.
+
+This paper builds on this literature by considering the problem of public service systems.
+For most public services, congestion is a negative aspect of service quality.
 When leaving one queue; customers (which we will refer to as players) often join a second queue and this is what is referred to as a hierarchical queueing system (as shown in Figure \ref{game_pic}).
 
 There is a wide range of literature evidencing the negative effect of selfish actions in queueing systems \cite{}.
