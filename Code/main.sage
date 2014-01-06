@@ -133,4 +133,4 @@ if __name__ == '__main__':
         f.close()
 
         p = list_plot(timeingdata, axes_labels=['$|S|$', 'time (seconds)'], xmin=0, ymin=0)
-        p.save('timeingplot.pdf')
+        p.save('timeingplot.svg')
