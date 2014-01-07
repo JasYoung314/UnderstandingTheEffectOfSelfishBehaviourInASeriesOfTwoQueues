@@ -1,3 +1,41 @@
+"""Simulation of Hierarchical queues
+
+Usage:
+    sim.py sim <lambda> <mu> <c> [-w]
+    sim.py file <file> [-w]
+    sim.py -h | --help
+    sim.py --version
+
+Options:
+    -w          Write data to csv file [default: True].
+    -h --help   Show this screen.
+    --version   Show version.
+
+Examples:
+
+If using the file tag put parameters in a file according to the following convention:
+
+lmbda
+mu
+c
+beta
+tau
+p
+T
+warmup
+
+for example:
+
+50
+[1,2]
+[5,3]
+[6,1]
+[2,2]
+.8
+500
+100
+
+"""
 from __future__ import division
 __metaclass__=type
 import random
@@ -5,8 +43,7 @@ import csv
 import multiprocessing
 import Queue
 import os
-import Policy_Random_v45
-reload(Policy_Random_v45)
+from docopt import docopt
 
 # Defines classes "Station" and "Players"
 class Player:
@@ -170,7 +207,7 @@ def service_dist(mu,location):
 def exit_dist():
 	return random.uniform(0, 1)
 
-def G_Sim(lmbda=False,mu=False,No_servers=False,skip_cost=False,Simulation_Time=False,Policy=False,warm_period=0,Print_Option=True,exit_list=False):
+def G_Sim(lmbda=False,mu=False,No_servers=False,skip_cost=False,Simulation_Time=False,Policy=False,warm_period=0,Print_Option=True,exit_list=False, writefile=True):
 
 	Policy_conversion=0
 	#If not parameters input, prompt
@@ -425,10 +462,10 @@ def G_Sim(lmbda=False,mu=False,No_servers=False,skip_cost=False,Simulation_Time=
 		print "No Valid Players, Results Colection Period Too Small"
 
 	#Csv writer,outputs data to seperate forms
-	if input("Output data to csv (True/False)? "):
+	if writefile:
 
 		#Outputs player data
-		outfile=open('H_Q_S-Output-Player-(%s,%s,%s,%s,%s,%s,%s,%s).csv' %(lmbda,mu,No_servers,skip_cost,Simulation_Time,Policy,warm_period,exit_list),'wb')
+		outfile=open('sim_output(%s,%s,%s,%s,%s,%s,%s,%s).csv' %(lmbda,mu,No_servers,skip_cost,Simulation_Time,Policy,warm_period,exit_list),'wb')
 		output=csv.writer(outfile)
 
 		#This is the title string
@@ -578,41 +615,16 @@ def G_Sim(lmbda=False,mu=False,No_servers=False,skip_cost=False,Simulation_Time=
 			k+=1
 		outfile.close()
 
-		#Outputs Station data to CSV
-		outfile=open('.\Saved_CSV\Simulation_Data\H_Q_S-Output-Station-(%s,%s,%s,%s,%s).csv' %(lmbda,mu,No_servers,skip_cost,Simulation_Time),'wb')
-		output=csv.writer(outfile)
-
-		outrow=[]
-		outrow.append("Station ID")
-		outrow.append("Station Skip Cost")
-		outrow.append('Station Service Rate')
-		outrow.append('No of Servers at Station')
-		h=0
-		k=0
-		while k<n:
-			while h<No_servers[k]:
-				string="Server %.0f at Station %.0f Utilisation" %(h,k)
-				outrow.append(string)
-				h+=1
-			k+=1
-		output.writerow(outrow)
-
-		k=0
-		while k<n:
-			outrow=[]
-			outrow.append(Stations[k].station_ID)
-			outrow.append(Stations[k].beta)
-			outrow.append(Stations[k].service_rate)
-			outrow.append(No_servers[k])
-			h=0
-			while h<No_servers[k]:
-				outrow.append(Stations[k].server_utilisation[h])
-				h+=1
-			output.writerow(outrow)
-			k+=1
-
-		outfile.close()
 
 	return
 
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version='Simulation 1.0')
 
+    if arguments['file']:
+        f = open(arguments['<file>'], 'r')
+        parameters = [eval(k) for k in f.read().split('\n') if k != '']
+        f.close()
+        lmbda, mu, c, beta, tau, p, T, warmup = parameters
+
+    G_Sim(lmbda=lmbda,mu=mu,No_servers=c,skip_cost=beta,Simulation_Time=T,Policy=tau,warm_period=warmup,Print_Option=True,exit_list=p, writefile=arguments['-w'])
