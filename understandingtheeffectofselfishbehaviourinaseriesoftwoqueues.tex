@@ -7,6 +7,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{ulem}
+\usepackage{hyperref}
 
 \usepackage{fullpage}
 \usepackage{parskip}
@@ -23,8 +24,6 @@
 \tikzstyle{player} = [draw, fill=red!80, shape=circle, minimum width=.25cm]
 \tikzstyle{terminal} = [draw, shape = rectangle, fill=red!60, minimum width=.75cm, minimum height=.75cm]
 
-
-
 %%% ------- Simulation ------- %%%%
 
 \tikzstyle{Process} = [draw, shape = rectangle, fill=blue!20, minimum width=2.5cm, minimum height=1cm, text width=1.5cm,align=center]
@@ -39,74 +38,93 @@
 
 \tikzstyle{left} = [draw, -latex',thick]
 
-
 \title{Understanding the effect of selfish behaviour in a series of two queues.}
 \author{Jason Young, Vincent Knight}
 
-
 \begin{document}
-
-When the cat goes: the paper is ready.
-
-\begin{center}
-  \includegraphics[width=.5\textwidth]{Images/cat.jpg}
-\end{center}
 
 \maketitle
 
 \begin{abstract}
 
-Hierarchical queues in HC;
-PoA;
-Simulation model;
-Heuristics developed to obtain optimal policies;
+Healthcare systems and other queueing systems are often a series of complex queueing networks.
+The best designed network can exhibit sub-optimal behaviour if the users of the system act rationally.
+This is a basic idea underlying Game Theory.
+
+
+There is a vast quantity of literature understanding this inefficiency which can be measured using a game theoretical measure entitled: Price of Anarchy (PoA).
+However, most of the corresponding work concentrates on queues in isolation and/or in parallel.
+
+In this paper two queues are considered in series.
+The decisions of customers at the entry to both queues thus has an impact on the efficiency of the entire system.
 
 \end{abstract}
 
+% Keywords: Hierarchical queues in HC; PoA; Simulation model; Heuristics developed to obtain optimal policies;
+
 \section{Introduction}\label{Introduction}
 
-Queues arise in a variety of settings: road traffic, data transfer and healthcare are just a few examples.
-A large quantity of literature has investigated strategic decision making (for example: whether or not to join a queue) with regards to queues stemming from \cite{}.
+What damage do the selfish choices of some afflict onto the welfare of all?
+The work presented in this paper answers this question in the context of queues in series.
+
+There is a substantial quantity of literature on the subject of equilibrium behaviour of a queueing system where congestion is a factor influencing behaviour \cite{bell1983individual,chr1972individual,  edelson1971congestion, luski1976partial, naor1969regulation, yechiali1972customers}.
+This can be traced back to a set of short communications between Leeman \cite{leeman1964reduction, leeman1965letter} and Saaty \cite{saaty1965burdens}.
+
+This paper builds on this literature by considering a particular network of queues.
+For most public services, congestion is a negative aspect of service quality.
 When leaving one queue; customers (which we will refer to as players) often join a second queue and this is what is referred to as a hierarchical queueing system (as shown in Figure \ref{game_pic}).
 
-There is a wide range of literature evidencing the negative effect of selfish actions in queueing systems \cite{}.
 The following is a general conclusion of a majority of the literature:
 
-\begin{quote}
-Selfish users make busier systems.
-\end{quote}
+\begin{center}
+\textit{Selfish users make busier systems.}
+\end{center}
 
-\begin{itemize}
-    \item Naor;
-    \item VK+PH;
-    \item RS;
-    \item Bell Stidham;
-    \item Hassani book;
-    \item Rouhgharden;
-\end{itemize}
+Naor cites the initial exchange between Leeman and Saaty as the motivation for his early work on queuing systems.
+In \cite{naor1969regulation}, thresholds are obtained that give the number of players $\tilde n$ at which selfish users should ``balk'' a particular queue.
+Furthermore, a threshold $n^*$ is obtained that ensures average optimal utility.
 
-The effect of selfish behaviour when compared to optimal behaviour can be quantified as the Price of Anarchy (PoA).
+In \cite{bell1983individual}, similar work is carried out for multiple $M/M/1$ queues in parallel where players chose which queue to join.
+Importantly, this work differs from \cite{naor1969regulation} in that it considers ``unobservable'' queues.
+
+In \cite{knight2012comparisons}, results are given regarding the comparison of observable and unobservable approaches.
+
+A good review of the mentioned works and further pieces of literature is found in \cite{hassin2003queue}.
+
+The effect of selfish behaviour when compared to optimal behaviour in game theoretical contexts is measured as the ``Price of Anarchy'' (PoA) \cite{koutsoupias2009worst, roughgarden2002bad}.
 This is defined as the ratio of the selfish ($\tilde C$) and optimal ($C^*$) costs:
 
 $$
 \PoA = \frac{\tilde C}{C^*}
 $$
 
+In \cite{knight2013selfish} the PoA is calculated for a healthcare system.
+Patient choices between hospitals are considered as $M/M/c$ queues in parallel.
+
 The contribution of this paper is to consider two stations (to avoid confusion we will refer to a queue and service station as a station) in series allowing for two consecutive decisions: whether or not to join the station.
 Players who join the first station upon completion of service will potentially drop out from the entire system.
 A potential application of this is a healthcare system where patients must choose to see their general practitioner before obtaining care from a specialist/emergency centre.
+If unable to get an appointment within a short enough period of time, patients may choose to go directly to their specialist/emergency centre \cite{Mail_millions}.
 
 In Section \ref{model}, the model will be described.
 A novel aspect of this work is that the cost of a given policy is evaluated through the use of purpose built Agent Based Simulation (ABS).
 In Section \ref{heuristicoptimalpolicies} various heuristic approaches to obtaining optimal policies are considered.
-These range from random search algorithms to a more sophisticated approach that depends on the analytical formula for an $M/M/c$ queue \cite{Stewart}.
+These range from random search algorithms to a more sophisticated approach that depends on the analytical formula for an $M/M/c$ queue \cite{stewart2009probability}.
 Before concluding in Section \ref{conclusions} a variety of numerical experiments will be shown in Section \ref{results} demonstrating the effect of selfish decision making in queues in series.
 
 \section{Model}\label{model}
 
-Let $k\{1,2\}$ be the index for each station in the system.
+Let $k\in\{1,2\}$ be the index for each station in the system.
 The players arrive into the system at a rate $\Lambda$.
-The players know the rate of service $\mu_k$ at each station, the number of servers at each station $c_k$ and also the number of players currently in each station.
+Upon arriving at the station $k$ players are aware of:
+
+\begin{itemize}
+    \item The service rate $\mu_k$;
+    \item The number of servers $c_k$;
+    \item The number of players already at station $k$: $m_k$;
+    \item The skip cost of station $k$: $\beta_k$.
+\end{itemize}
+
 Upon observing a station, players must select one of two potential strategies: `join' or `skip'.
 The strategy picked at station $k$ is denoted by $d_k\in\{0,1\}$:
 
@@ -118,8 +136,9 @@ The strategy picked at station $k$ is denoted by $d_k\in\{0,1\}$:
 \end{cases}
 \end{equation}
 
-The cost associated with joining system $k$ is denoted by $J_k$ and corresponds to the actual time spent in system $k$.
+The cost associated with joining station $k$ is denoted by $J_k$ and corresponds to the actual time spent in station $k$.
 The cost associated with skipping station $k$ is denoted by $\beta_k$.
+This cost is measured in units of time but is a constant value to be interpreted as the ``value of service'' at station $k$.
 The cumulative cost of going through the entire system is given by $C=C(d)=C_1(d)+C_2(d)$ where:
 
 \begin{equation}\label{eq:actualcost}
@@ -129,10 +148,10 @@ C_{k} = \begin{cases}
         \end{cases}
 \end{equation}
 
-The expected value of $J_k$ when there are $m$ players present upon arrival in system $k$ is given by:
+The expected value of $J_k$ when there are $m_k$ players present upon arrival in system $k$ is given by:
 
 \begin{equation} \label{eq:expect}
-	E[J_{k}] = \frac{m+1}{\mu_k c_k}
+	E[J_{k}] = \frac{m_k+1}{\mu_k c_k}
 \end{equation}
 
 A final parameter of our model is the dropout probability $p$.
@@ -207,40 +226,11 @@ Where $m_k$ is the number of players present at station $k$ upon having to make 
 In other words a policy $\tau$ is a set of two threshold policies, one for each station, simply denoting a threshold at which players skip.
 As $d=d(\tau)$ we have $C=C(\tau)$.
 
-DISCUSS SOLUTION SPACE FOR $\tau$: $\Omega$.
 
-The optimal cost is thus defined as:
+\subsection{Simulation engine}
 
-\begin{equation}\label{eq:optimal}
-C^*=\min_{\tau\in\Omega}E[C(\tau)]
-\end{equation}
-
-Note that the restriction of the optimisation problem to only consider stationary policies is potentially an incorrect one.
-Indeed, a non homogeneous policy could in fact be optimal however \textbf{FIND REFERENCE AND PAPER THAT SAYS THAT AN OPTIMAL POLICY WOULD BE HOMOGENOUS}.
-
-The particular policy that gives $C^*$ will be denoted as $\tau^*$.
-Another policy that will be considered in this paper is the selfish policy $\tilde\tau$.
-The selfish policy is the policy under which individual players reduce their expected cost.
-
-To obtain the selfish policy a further assumption is made: players are pessimistic.
-It is assumed that players ignore the dropout probability $p$ at decision $d_1$ so that we have (recall equation (\ref{eq:decision})):
-
-\begin{equation}\label{eq:selfishdecision}
-    \tilde d_k=
-\begin{cases}
-    1,& \text{if } E[J_k] \leq \beta_k \\
-    0,& \text{otherwise}
-\end{cases}
-\end{equation}
-
-This in turn gives (recalling (\ref{eq:expect})):
-
-\begin{equation}\label{eq:selfishpolicy}
-\tilde\tau = \left(\lfloor\beta_1\mu_1 c_1 - 1\rfloor,\lfloor\beta_2\mu_2 c_2 - 1\rfloor\right)
-\end{equation}
-
-To evaluate the $C(\tau)$ for given $\tau$ a bespoke simulation model has been developed  (written in Python \cite{web001}).
-The model itself is a combination of Discrete Event \cite{cite003} and Agent Based \cite{cite004} Simulation (taking advantage of the Object Orientated framework available in Python).
+To evaluate the $C(\tau)$ for given $\tau$ a bespoke simulation model has been developed  (written in Python \url{http://www.python.org/}).
+The model itself is a combination of Discrete Event and Agent Based Simulation (taking advantage of the Object Orientated framework available in Python) \cite{robinson2004simulation}.
 The flow of the simulation model is shown in Figure \ref{fig:Simflow}.
 
 \begin{figure}[!hbpt]
@@ -318,7 +308,52 @@ Graphical methods were used for system parameters discussed in Section \ref{resu
 
 A run time of 250 time units was shown to reduce the variation in $C(\tau)$ (Figure \ref{runtime}a) whilst a warm up period of 50 time units reduced gave a stable utilisation of servers (Figure \ref{runtime}b).
 Finally experiments of 16 trials each were chosen despite the lack of variation shown in Figure \ref{runtime}c.
-This relatively large number of trials did not prove to be computationally expensive as they were all run in parallel using \ref{web002}.
+This relatively large number of trials did not prove to be computationally expensive as they were all run in parallel using the Advanced Research Computing facilities at Cardiff University \url{http://www.cardiff.ac.uk/arcca/} (super computer).
+
+\subsection{Selfish policy: $\tilde \tau$}
+
+The selfish policy is the policy under which individual players reduce their expected cost.
+
+To obtain the selfish policy an assumption is made: players are risk averse.
+It is assumed that players ignore the dropout probability $p$ at station $1$ so that we have (recall equation (\ref{eq:decision})):
+
+\begin{equation}\label{eq:selfishdecision}
+    \tilde d_k=
+\begin{cases}
+    1,& \text{if } E[J_k] \leq \beta_k \\
+    0,& \text{otherwise}
+\end{cases}
+\end{equation}
+
+This in turn gives (recalling (\ref{eq:expect})):
+
+\begin{equation}\label{eq:selfishpolicy}
+\tilde\tau = \left(\lfloor\beta_1\mu_1 c_1 - 1\rfloor,\lfloor\beta_2\mu_2 c_2 - 1\rfloor\right)
+\end{equation}
+
+
+\subsection{Optimal policy: $\tau ^*$}
+
+As discussed before, in general selfish users make busier system so that it seems reasonable to assume $n_k^*\leq \tilde n_k^*$ for $k\in\{1,2\}$.
+A general result has in fact been shown confirming this for queues in parallel \cite{shone2014containment}.
+However, this is not necessarily evident for queues in series with $p>0$.
+Indeed, to reduce the mean value $C$ it is reasonable to assume that a gateway effect exists, where players are encouraged to join the first queue in order to exit the queue thanks to the dropout probability.
+This is in fact readily understood in practice by policy makers: \cite{Mail_millions}.
+
+Let $\Omega$ be the solution space to the optimisation problem of reducing the expected value of $C^*$:
+
+\begin{equation}\label{searchspace}
+\Omega = \left\{\tau=(n_1, n_2)\in\mathbb{Z}^2\;|\;0\leq n_1\leq 2\tilde n_1,\; 0\leq n_2\leq \tilde n_2 \right\}
+\end{equation}
+
+The optimal cost is thus defined as:
+
+\begin{equation}\label{eq:optimal}
+E[C^*]=\min_{\tau\in\Omega}E[C(\tau)]
+\end{equation}
+
+Note that the restriction of the optimisation problem to only consider stationary policies is potentially an incorrect one.
+Indeed, a non homogeneous policy could in fact be optimal however considering dynamic programming techniques on the underlying Markov Decision process it can be seen that a threshold policy will in fact be optimal \cite{puterman2009markov}.
 
 As discussed, the simulation model is used as an objective function for a given $\tau$.
 In the next section, various heuristic approaches to obtaining $\tau^*$ (recall (\ref{eq:optimal}): this corresponds to the optimal policy) will be discussed.
