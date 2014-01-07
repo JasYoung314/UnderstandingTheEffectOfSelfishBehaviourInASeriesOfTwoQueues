@@ -26,19 +26,19 @@ def PN(lmbda,mu,c,M,n):
         PN=(1/((factorial(c))*((c)**(n-c))))*((lmbda/mu)**n)*Pnought
     return PN
 
-N = 2000
+N = 50000
 warmupprop = .2
 mu = 1
 c = 2
 n1 = 4
 
-Lambdalist = [.05, .5, 1, 2]
-plist = [0,.25,.5,.75,1]
+Lambdalist = [.05, .25, .5, .75, 1, 1.25, 1.5, 1.75, 2]
+plist = [0,.125, .25, .365, .5, .625, .75, .875, 1]
 
 for Lambda in Lambdalist:
     for p in plist:
         expectedRate = Lambda * (1 - p * (1 - PN(Lambda, mu, c, n1, n1)))
-        T =  min(8000, N /(expectedRate * (1 - warmupprop)))
+        T =  min(40000, N /(expectedRate * (1 - warmupprop)))
 
         print 50 * "-"
         print 'Running for Lambda=%s, p=%s.' % (Lambda, p)
