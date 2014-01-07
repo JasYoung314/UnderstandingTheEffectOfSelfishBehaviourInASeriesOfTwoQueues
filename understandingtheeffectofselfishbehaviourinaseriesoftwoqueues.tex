@@ -12,6 +12,9 @@
 \usepackage{fullpage}
 \usepackage{parskip}
 
+\usepackage{todonotes}
+\newcommand{\VK}[1]{\todo[color=blue!20]{#1}}
+
 \usepackage{amsmath,tikz}
 \usetikzlibrary{shapes.geometric,arrows,positioning,calc}
 
@@ -107,6 +110,7 @@ A potential application of this is a healthcare system where patients must choos
 If unable to get an appointment within a short enough period of time, patients may choose to go directly to their specialist/emergency centre \cite{Mail_millions}.
 
 In Section \ref{model}, the model will be described.
+\VK{Include something here about MC...}
 A novel aspect of this work is that the cost of a given policy is evaluated through the use of purpose built Agent Based Simulation (ABS).
 In Section \ref{heuristicoptimalpolicies} various heuristic approaches to obtaining optimal policies are considered.
 These range from random search algorithms to a more sophisticated approach that depends on the analytical formula for an $M/M/c$ queue \cite{stewart2009probability}.
@@ -226,6 +230,9 @@ Where $m_k$ is the number of players present at station $k$ upon having to make 
 In other words a policy $\tau$ is a set of two threshold policies, one for each station, simply denoting a threshold at which players skip.
 As $d=d(\tau)$ we have $C=C(\tau)$.
 
+\subsection{Underlying Markov chain}
+
+\VK{Include discussion about MC approach? Write down MC and then explain why too costly...}
 
 \subsection{Simulation engine}
 
@@ -394,11 +401,18 @@ Nevertheless as shown in Figure \ref{casestudycomp} this heuristic performs very
 
 The arrival rate at the second station is given by:
 
-\begin{equation}
+\begin{equation}\label{lmbda2rate}
 \lambda_2 = \Lambda\times(1-p\times(1-\pi^{(1)}_{n_1}))
 \end{equation}
 
 Where $\tau=(n_1, n_2)$ and $\pi^{(1)}_{i}$ is the probability that the first station is in state $0\leq i\leq n_1$.
+
+This is obtained by the fact that the birth death process underlying the first station is reversible \cite{stewart2009probability} and so the departure rate distribution is identical to the arrival rate distribution (this was originally shown in \cite{burke1956output}).
+Given that the departure rate is $\Lambda$, the proportion of players lost to the system is given by $p\times(1-\pi^{1}_{n_1})$ which gives (\ref{lmbda2rate}).
+It is obvious that if $p=0$ then the inter arrival rate of at the second queue will follow an exponential distribution (this was in fact proven for more general queueing networks in \cite{van1988jackson}).
+
+\VK{Use simulation model to get plot of arrival rates at second station for a bunch of values of rho... Plot comparison to theoretical distribution...}
+
 Note that the first station corresponds to an $M/M/c/n_1$ queue and so we have:
 
 \begin{equation}\label{eq:probcl}
