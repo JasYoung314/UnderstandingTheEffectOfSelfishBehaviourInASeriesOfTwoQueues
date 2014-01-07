@@ -414,6 +414,7 @@ Given that the departure rate is $\Lambda$, the proportion of players lost to th
 It is obvious that if $p=0$ then the inter arrival rate of at the second queue will follow an exponential distribution (this was in fact proven for more general queueing networks in \cite{van1988jackson}).
 
 \VK{Use simulation model to get plot of arrival rates at second station for a bunch of values of rho... Plot comparison to theoretical distribution...}
+\VK{Based on initial results from simulation: pretty sure that this is not a good fit. Remember to point out takacs paper.}
 
 Note that the first station corresponds to an $M/M/c/n_1$ queue and so we have:
 
@@ -491,9 +492,9 @@ Using data from \cite{} we consider two stations in series:
 
         $$c_1=5, \mu_1=12.5, \beta_1=2$$
 
-    \item After seeing a GP or after deciding the wait to see a GP is too long \cite{FINDSOMEPOPNEWSABOUTTHIS} patients may choose to proceed to the Emergency Department (ED). It is assumed that the ED has a capacity of 5 servers each able to 2 patients an hour. An acceptable wait is now assumed to be 8 hours which is in line with national targets \cite{}.
+    \item After seeing a GP or after deciding the wait to see a GP is too long \cite{FINDSOMEPOPNEWSABOUTTHIS} patients may choose to proceed to the Emergency Department (ED). It is assumed that the ED has a capacity of 2 servers each able to 2 patients an hour. An acceptable wait is now assumed to be 8 hours which is in line with national targets \cite{}.
 
-        $$c_2=5, \mu_1=48, \beta_1=1/3$$
+        $$c_2=2, \mu_2=48, \beta_2=1/3$$
 \end{itemize}
 
 It is assumed that 80\% of patients who see their GP do not need to attend the ED:
