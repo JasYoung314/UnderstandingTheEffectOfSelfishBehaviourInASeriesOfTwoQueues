@@ -117,7 +117,7 @@ if __name__ == '__main__':
     except:
         timeingdata = []
 
-    startsize = 522
+    startsize = 541
     maxsize = 600
     for c in range(startsize, maxsize):
         f = open('timeingoutput.csv', 'a')
