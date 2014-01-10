@@ -117,8 +117,9 @@ if __name__ == '__main__':
     except:
         timeingdata = []
 
-    maxsize = 600
-    for c in range(2, maxsize):
+    startsize = 556
+    maxsize = 700
+    for c in range(startsize, maxsize):
         f = open('timeingoutput.csv', 'a')
         csvwtr = csv.writer(f)
 
